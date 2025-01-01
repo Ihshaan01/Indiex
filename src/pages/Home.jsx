@@ -91,7 +91,7 @@ export default function Home() {
 
       <div>
         <h3 className="text-2xl font-bold mb-4 mx-10"> Top FreeLancers</h3>
-        <div className="grid grid-cols-4 gap-4 mx-10">
+        <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
           {GigsData.map((card, index) => (
             <Link key={index} to="/DetailPage">
               <Card

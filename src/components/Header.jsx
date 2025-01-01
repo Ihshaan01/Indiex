@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
-import { IoPersonOutline } from "react-icons/io5";
+import { IoMenu, IoPersonOutline } from "react-icons/io5";
 import { IconContext } from "react-icons";
 import SignUpModal from "./SignUpModal";
 import SignInModal from "./SignInModel";
@@ -11,6 +11,7 @@ const Header = () => {
   const [signUpModalVisible, setSignUpModalVisible] = useState(false);
   const [signInModalVisible, setSignInModalVisible] = useState(false);
   const [userModalVisible, setUserModalVisible] = useState(false);
+  const [mobileMenuVisible, setmobileMenuVisible] = useState(false);
 
   const categories = [
     {
@@ -144,7 +145,8 @@ const Header = () => {
         className="bg-blue-500 text-white py-4 px-8 "
         onMouseLeave={() => {
           setExpandedCategory(null);
-          setHoveredSubCategory(null);
+          setmobileMenuVisible(false);
+          null;
         }}
       >
         <div className="z-20">
@@ -167,10 +169,21 @@ const Header = () => {
                   className="hover:scale-110 scale-100 transition-transform"
                   onClick={() => {
                     setExpandedCategory(null);
+                    setmobileMenuVisible(false);
                     setUserModalVisible(!userModalVisible);
                   }}
                 >
                   <IoPersonOutline />
+                </button>
+                <button
+                  className="hover:scale-110 scale-100 transition-transform md:hidden"
+                  onClick={() => {
+                    setExpandedCategory(null);
+                    setmobileMenuVisible(!mobileMenuVisible);
+                    setUserModalVisible(false);
+                  }}
+                >
+                  <IoMenu />
                 </button>
               </div>
             </IconContext.Provider>
@@ -200,8 +213,8 @@ const Header = () => {
               Sign In
             </button>
           </div>
-          <div className="flex justify-between">
-            <div className="flex gap-x-20">
+          <div className=" justify-between hidden md:flex">
+            <div className=" gap-x-20 flex">
               {categories.map((category, index) => (
                 <div
                   key={index}
@@ -213,9 +226,25 @@ const Header = () => {
             </div>
             <div className="text-md font-semibold">Switch to Selling</div>
           </div>
-
           <div
-            className={`bg-blue-500 absolute z-20 flex w-full left-0 transition-transform duration-300 ${
+            className={` justify-between md:hidden ${
+              mobileMenuVisible ? "flex flex-col gap-y-3" : "hidden"
+            }`}
+          >
+            <div className=" gap-y-3 flex flex-col">
+              {categories.map((category, index) => (
+                <div
+                  key={index}
+                  onMouseEnter={() => setExpandedCategory(index)}
+                >
+                  <div className="text-md font-semibold">{category.name}</div>
+                </div>
+              ))}
+            </div>
+            <div className="text-md font-semibold">Switch to Selling</div>
+          </div>
+          <div
+            className={`bg-blue-500 absolute z-20 flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
               expandedCategory !== null
                 ? "translate-y-3 opacity-100"
                 : "translate-y-0 opacity-0 -z-50"
@@ -224,7 +253,7 @@ const Header = () => {
           `}
           >
             <div
-              className={`  flex-col gap-y-5 grid grid-cols-2 w-1/2 ml-8 my-2 `}
+              className={`gap-y-5 grid grid-cols-1 md:grid-cols-2 w-1/2 md:ml-8 mx-2 my-2`}
             >
               {expandedCategory !== null &&
                 categories[expandedCategory].subCategories.map(
@@ -241,7 +270,7 @@ const Header = () => {
                 )}
             </div>
             <div
-              className={`w-1/2 flex justify-center items-center py-5 transition-transform transform ${
+              className={`w-1/2 flex justify-center items-center py-5 px-2 transition-transform  transform ${
                 hoveredSubCategory
                   ? "scale-100 opacity-100"
                   : "scale-90 opacity-0"
@@ -250,7 +279,7 @@ const Header = () => {
               <img
                 src={hoveredSubCategory || ""}
                 alt="Subcategory"
-                className="h-60 object-cover rounded-lg shadow-lg"
+                className="md:h-60 h-52 object-cover rounded-lg shadow-lg"
               />
             </div>
           </div>
