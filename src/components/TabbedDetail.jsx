@@ -8,6 +8,7 @@ const TabbedDetails = () => {
   const toggleOpenedSection = (section) => {
     setOpenedSection((prev) => (prev === section ? null : section));
   };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* Tabs */}
@@ -45,7 +46,13 @@ const TabbedDetails = () => {
                 <FaChevronDown />
               )}
             </button>
-            {openedSection === "Description" && (
+            <div
+              className={`overflow-hidden transition-all duration-500 ${
+                openedSection === "Description"
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
               <p className="mt-2 text-gray-600">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
@@ -53,7 +60,7 @@ const TabbedDetails = () => {
                 nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
                 in reprehenderit in voluptate velit esse cillum dolore.
               </p>
-            )}
+            </div>
           </div>
 
           {/* Technical Details */}
@@ -69,9 +76,15 @@ const TabbedDetails = () => {
                 <FaChevronDown />
               )}
             </button>
-            {openedSection === "TechnicalDetails" && (
+            <div
+              className={`overflow-hidden transition-all duration-500 ${
+                openedSection === "TechnicalDetails"
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
               <p className="mt-2 text-gray-600">Add technical details here.</p>
-            )}
+            </div>
           </div>
 
           {/* Keywords */}
@@ -87,7 +100,13 @@ const TabbedDetails = () => {
                 <FaChevronDown />
               )}
             </button>
-            {openedSection === "KeyWords" && (
+            <div
+              className={`overflow-hidden transition-all duration-500 ${
+                openedSection === "KeyWords"
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
               <div className="mt-2 flex flex-wrap gap-2">
                 {Array(10)
                   .fill("Reference Words")
@@ -100,11 +119,51 @@ const TabbedDetails = () => {
                     </span>
                   ))}
               </div>
-            )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "Package Contents" && (
+        <div className="mt-4">
+          <h2 className="text-xl font-bold">Package Contents</h2>
+          <ul className="list-disc pl-5 mt-4 text-gray-600">
+            <li>1x Item 1</li>
+            <li>1x Item 2</li>
+            <li>1x Item 3</li>
+            <li>1x Item 4</li>
+          </ul>
+        </div>
+      )}
+
+      {activeTab === "Publisher Info" && (
+        <div className="mt-4">
+          <h2 className="text-xl font-bold">Publisher Info</h2>
+          <p className="mt-4 text-gray-600">Publisher: Awesome Games Ltd.</p>
+          <p className="mt-2 text-gray-600">Founded: 2010</p>
+          <p className="mt-2 text-gray-600">Contact: info@awesomegames.com</p>
+        </div>
+      )}
+
+      {activeTab === "Reviews" && (
+        <div className="mt-4">
+          <h2 className="text-xl font-bold">Reviews</h2>
+          <div className="mt-4 space-y-4">
+            {[1, 2, 3].map((review) => (
+              <div key={review} className="border p-4 rounded-md">
+                <p className="font-semibold">User {review}</p>
+                <p className="text-gray-600 mt-2">
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                  do eiusmod tempor incididunt ut labore et dolore magna
+                  aliqua."
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}
     </div>
   );
 };
+
 export default TabbedDetails;

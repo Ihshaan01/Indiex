@@ -110,7 +110,7 @@ export default function Home() {
       </div>
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10"> Top Assets</h3>
-        <div className="grid grid-cols-4 gap-4 mx-10">
+        <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
           {CardData.map((card, index) => (
             <Card
               key={index}
