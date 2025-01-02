@@ -154,7 +154,12 @@ const Header = () => {
             <Link to="/" className="text-3xl font-bold">
               Indie X
             </Link>
-            <IconContext.Provider value={{ color: "white", size: "1.1em" }}>
+            <IconContext.Provider
+              value={{
+                color: "white",
+                size: "1.1em",
+              }}
+            >
               <div className="flex gap-3">
                 <button className="hover:scale-110 scale-100 transition-transform">
                   <CiSearch />
@@ -244,9 +249,9 @@ const Header = () => {
             <div className="text-md font-semibold">Switch to Selling</div>
           </div>
           <div
-            className={`bg-blue-500 absolute z-20 flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
+            className={`bg-blue-500 absolute  flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
               expandedCategory !== null
-                ? "translate-y-3 opacity-100"
+                ? "translate-y-3 opacity-100 z-20"
                 : "translate-y-0 opacity-0 -z-50"
             } 
           
