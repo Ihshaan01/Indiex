@@ -34,15 +34,14 @@ export const DropDown = ({ buttonLabel, items, onSelect }) => {
         </span>
       </button>
       {open && (
-        <div className="absolute top-full mt-1 w-56 shadow-md rounded-md p-1 border bg-white z-10">
+        <div className="absolute top-full mt-1 px-3 w-auto shadow-md rounded-md p-1 border bg-white z-10">
           <ul>
             {items.map((item, index) => (
               <li
                 key={index}
-                className="relative flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 rounded-md cursor-pointer"
+                className="relative flex items-center w-auto gap-2 px-4 py-2 text-sm hover:bg-gray-100 rounded-md cursor-pointer  whitespace-nowrap overflow-hidden text-ellipsis"
                 onClick={() => handleSelect(item)}
               >
-                {item.icon && <span>{item.icon}</span>}
                 {item.val}
               </li>
             ))}

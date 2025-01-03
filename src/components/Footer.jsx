@@ -4,10 +4,13 @@ import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { FaFacebookF, FaTwitter } from "react-icons/fa";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { IoLogoInstagram } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 export default function Footer() {
+  const navigate = useNavigate();
+
   return (
-    <div className="bg-blue-500 w-full py-10 grid grid-cols-2">
+    <div className="bg-blue-600 w-full py-10 grid grid-cols-2">
       <div className="w-full grid grid-cols-2 ml-5 ">
         <div className="flex flex-col">
           <h1 className="text-white text-xl font-bold">Sell Assets</h1>
@@ -17,25 +20,42 @@ export default function Footer() {
           <button className="text-white text-sm text-start">
             Submission Guideline
           </button>{" "}
-          <button className="text-white text-sm text-start">
+          <button
+            className="text-white text-sm text-start"
+            onClick={() => navigate("/faq/publisher")}
+          >
             Publisher FAQ
           </button>
         </div>
         <div className="flex flex-col">
           <h1 className="text-white text-xl font-bold">Discover</h1>
-          <button className="text-white text-sm mt-2 text-start">
+          <button
+            className="text-white text-sm mt-2 text-start"
+            onClick={() => navigate("/Category/Assets")}
+          >
             Most Popular Assets
           </button>
-          <button className="text-white text-sm text-start">
+          <button
+            className="text-white text-sm text-start"
+            onClick={() => navigate("/Category/Assets")}
+          >
             Top Free Assets
           </button>{" "}
-          <button className="text-white text-sm text-start">
+          <button
+            className="text-white text-sm text-start"
+            onClick={() => navigate("/Category/Assets")}
+          >
             Top Paid Assets
           </button>
         </div>
         <div className="mt-4 flex flex-col">
           <h1 className="text-white text-2xl font-bold">Help</h1>
-          <button className="text-white text-sm text-start mt-2">FAQ</button>
+          <button
+            className="text-white text-sm text-start mt-2"
+            onClick={() => navigate("/faq/user")}
+          >
+            FAQ
+          </button>
           <button className="text-white text-sm text-start">
             Customer Services
           </button>
@@ -44,13 +64,23 @@ export default function Footer() {
           <h1 className="text-white text-2xl font-bold mb-2">Follow</h1>
           <IconContext.Provider value={{ color: "white", size: "1.3em" }}>
             <div className="flex gap-3">
-              <button>
+              <button
+                onClick={() =>
+                  window.open("https://www.facebook.com", "_blank")
+                }
+              >
                 <FaFacebookF />
               </button>
-              <button>
+              <button
+                onClick={() => window.open("https://twitter.com/", "_blank")}
+              >
                 <FaSquareXTwitter />
               </button>
-              <button>
+              <button
+                onClick={() =>
+                  window.open("https://www.instagram.com/", "_blank")
+                }
+              >
                 <IoLogoInstagram />
               </button>
             </div>

@@ -1,10 +1,12 @@
 import React from "react";
 
 const SignUpModal = ({ visible, onClose }) => {
-  if (!visible) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      className={`fixed inset-0  flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300 ease-in-out ${
+        visible ? "opacity-100 z-50" : "opacity-0 pointer-events-none -z-50"
+      }`}
+    >
       {/* Modal Container */}
       <div className="flex w-11/12 max-w-4xl h-5/6 bg-white rounded-lg overflow-hidden">
         {/* Promotional Section */}

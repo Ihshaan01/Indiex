@@ -1,17 +1,106 @@
-import React, { useState } from "react";
-import { CiSearch, CiShoppingCart } from "react-icons/ci";
-import { IoMenu, IoPersonOutline } from "react-icons/io5";
-import { IconContext } from "react-icons";
-import SignUpModal from "./SignUpModal";
-import SignInModal from "./SignInModel";
-import { Link } from "react-router-dom";
-const Header = () => {
-  const [expandedCategory, setExpandedCategory] = useState(null);
-  const [hoveredSubCategory, setHoveredSubCategory] = useState(null);
-  const [signUpModalVisible, setSignUpModalVisible] = useState(false);
-  const [signInModalVisible, setSignInModalVisible] = useState(false);
-  const [userModalVisible, setUserModalVisible] = useState(false);
-  const [mobileMenuVisible, setmobileMenuVisible] = useState(false);
+import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
+import HeroBanner from "../components/HeroBanner";
+import Card from "../components/Card";
+import Footer from "../components/Footer";
+import { DropDown } from "../components/DropDown";
+import { Link, useParams } from "react-router-dom";
+
+export default function Category() {
+  const { categoryName, subCategoryName } = useParams();
+  const [cards, setCards] = useState([
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Assets of Camera For Unity",
+      storeName: "DesignPro Studio",
+      ratingAverage: 4.5,
+      totalrating: 50,
+      price: "30",
+      isGig: true,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Product Name",
+      storeName: "Studio Name",
+      ratingAverage: 4.2,
+      totalrating: 30,
+      price: "10.99",
+      isGig: false,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Assets of Camera For Unity",
+      storeName: "DesignPro Studio",
+      ratingAverage: 4.5,
+      totalrating: 50,
+      price: "30",
+      isGig: true,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Product Name",
+      storeName: "Studio Name",
+      ratingAverage: 4.2,
+      totalrating: 30,
+      price: "10.99",
+      isGig: false,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Assets of Camera For Unity",
+      storeName: "DesignPro Studio",
+      ratingAverage: 4.5,
+      totalrating: 50,
+      price: "30",
+      isGig: true,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Product Name",
+      storeName: "Studio Name",
+      ratingAverage: 4.2,
+      totalrating: 30,
+      price: "10.99",
+      isGig: false,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Assets of Camera For Unity",
+      storeName: "DesignPro Studio",
+      ratingAverage: 4.5,
+      totalrating: 50,
+      price: "30",
+      isGig: true,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Product Name",
+      storeName: "Studio Name",
+      ratingAverage: 4.2,
+      totalrating: 30,
+      price: "10.99",
+      isGig: false,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Assets of Camera For Unity",
+      storeName: "DesignPro Studio",
+      ratingAverage: 4.5,
+      totalrating: 50,
+      price: "30",
+      isGig: true,
+    },
+    {
+      image: "https://via.placeholder.com/150",
+      gigName: "Product Name",
+      storeName: "Studio Name",
+      ratingAverage: 4.2,
+      totalrating: 30,
+      price: "10.99",
+      isGig: false,
+    },
+    // Add more card data as needed
+  ]);
 
   const categories = [
     {
@@ -138,185 +227,174 @@ const Header = () => {
       ],
     },
   ];
+  const [selectedCategory, setSelectedCategory] = useState(categoryName);
+  const [selectedSubCategory, setSelectedSubCategory] =
+    useState(subCategoryName);
+
+  useEffect(() => {
+    const filteredCategory = categories.find(
+      (category) => category.name === categoryName
+    );
+
+    setSelectedCategory(filteredCategory.name);
+    window.scrollTo(0, 0);
+  }, [categoryName]);
+
+  useEffect(() => {
+    if (subCategoryName) {
+      setSelectedSubCategory(subCategoryName);
+    }
+    window.scrollTo(0, 0);
+  }, [subCategoryName]);
 
   return (
-    <>
-      <header
-        className="bg-blue-600 text-white py-4 px-8 "
-        onMouseLeave={() => {
-          setExpandedCategory(null);
-          setmobileMenuVisible(false);
-          null;
-        }}
-      >
-        <div className="z-20">
-          <div className="flex justify-between items-center my-2  ">
-            <Link to="/" className="text-3xl font-bold">
-              Indie X
-            </Link>
-            <IconContext.Provider
-              value={{
-                color: "white",
-                size: "1.1em",
-              }}
-            >
-              <div className="flex gap-3">
-                <button className="hover:scale-110 scale-100 transition-transform">
-                  <CiSearch />
-                </button>
-                <Link
-                  to="/Cart"
-                  className="hover:scale-110 scale-100 transition-transform"
-                >
-                  <CiShoppingCart />
-                </Link>
-                <button
-                  className="hover:scale-110 scale-100 transition-transform"
-                  onClick={() => {
-                    setExpandedCategory(null);
-                    setmobileMenuVisible(false);
-                    setUserModalVisible(!userModalVisible);
-                  }}
-                >
-                  <IoPersonOutline />
-                </button>
-                <button
-                  className="hover:scale-110 scale-100 transition-transform md:hidden"
-                  onClick={() => {
-                    setExpandedCategory(null);
-                    setmobileMenuVisible(!mobileMenuVisible);
-                    setUserModalVisible(false);
-                  }}
-                >
-                  <IoMenu />
-                </button>
+    <div>
+      <Header />
+      <HeroBanner type="short" />
+
+      <div className="container mx-auto my-10">
+        <div className="grid grid-cols-[20%_80%] mx-10 gap-5">
+          {/* Sidebar */}
+          <div className="p-4 rounded">
+            <ul>
+              {selectedCategory && (
+                <li className="mb-4 cursor-pointer">
+                  <div className="font-semibold text-xl mb-4">
+                    {selectedCategory}
+                  </div>
+                  <ul>
+                    {categories
+                      .filter((category) => category.name === categoryName) // Filter the category by name
+                      .map((category) => category.subCategories) // Extract the subcategories array
+                      .flat() // Flatten the array (because map returns a nested array)
+                      .map((subCategory, subIndex) => (
+                        <Link
+                          to={`/Category/${selectedCategory}/${subCategory.name}`}
+                          key={subIndex}
+                        >
+                          <li
+                            className={`text-sm font-medium p-1 cursor-pointer transition duration-300 ${
+                              selectedSubCategory === subCategory.name
+                                ? "bg-blue-200 text-blue-700"
+                                : "hover:bg-gray-200"
+                            }`}
+                          >
+                            {subCategory.name}
+                          </li>
+                        </Link>
+                      ))}
+                  </ul>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Main Content */}
+          <div>
+            <div className="mb-5">
+              <h1 className="text-2xl font-bold">
+                {subCategoryName
+                  ? `${subCategoryName} in ${categoryName}`
+                  : categoryName}
+              </h1>
+            </div>
+            {/* Filters and Sorting */}
+            <div className="flex justify-between items-center mb-5">
+              <div className="flex flex-col">
+                <label className="mb-2 text-lg">Filters</label>
+                <div className="flex gap-3">
+                  {" "}
+                  <DropDown
+                    buttonLabel="Price"
+                    items={[
+                      { val: "Price" },
+                      { val: "Free" },
+                      { val: "Under $10" },
+                      { val: "Under $20" },
+                      { val: "Under $50" },
+                    ]}
+                    onSelect={(val) => {
+                      console.log(val);
+                    }}
+                  />
+                  <DropDown
+                    buttonLabel="Rating"
+                    items={[
+                      { val: "Rating" },
+                      { val: "1 Star" },
+                      { val: "2 Star" },
+                      { val: "3 Star" },
+                      { val: "4 Star" },
+                      { val: "5 Star" },
+                    ]}
+                    onSelect={(val) => {
+                      console.log(val);
+                    }}
+                  />
+                </div>
               </div>
-            </IconContext.Provider>
-          </div>
-          <div
-            className={`bg-white w-36 h-16 flex flex-col justify-center p-2 items-start absolute right-5 rounded-md shadow-md ${
-              !userModalVisible && "hidden"
-            }`}
-          >
-            <button
-              className="text-gray-700 text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
-              onClick={() => {
-                setSignUpModalVisible(true);
-                setUserModalVisible(false);
-              }}
-            >
-              Sign Up
-            </button>
-            <div className="border-b-2 w-full my-1" />
-            <button
-              className="text-gray-700 text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
-              onClick={() => {
-                setSignInModalVisible(true);
-                setUserModalVisible(false);
-              }}
-            >
-              Sign In
-            </button>
-          </div>
-          <div className=" justify-between hidden md:flex">
-            <div className=" gap-x-20 flex">
-              {categories.map((category, index) => (
-                <div
-                  key={index}
-                  onMouseEnter={() => setExpandedCategory(index)}
-                  className="hover:bg-blue-700 p-2 rounded-md transition-colors duration-300"
-                >
-                  <Link
-                    to={`/Category/${category.name}`}
-                    className="text-md font-semibold"
-                  >
-                    {category.name}
-                  </Link>
+              <div className="flex gap-3">
+                <div className="flex flex-col">
+                  <label className="mb-2 text-lg">Sort by</label>
+                  <DropDown
+                    buttonLabel="Relevance"
+                    items={[
+                      { val: "Relevance" },
+                      { val: "Price: Low to High" },
+                      { val: "Price: High to Low" },
+                    ]}
+                    onSelect={(val) => {
+                      console.log(val);
+                    }}
+                  />
                 </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-lg">Results</label>
+                  <DropDown
+                    buttonLabel="10"
+                    items={[{ val: "10" }, { val: "20" }, { val: "50" }]}
+                    onSelect={(val) => {
+                      console.log(val);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Card Grid */}
+            <div className="grid grid-cols-4 gap-4">
+              {cards.map((card, index) => (
+                <Card
+                  key={index}
+                  image={card.image}
+                  gigName={card.gigName}
+                  storeName={card.storeName}
+                  ratingAverage={card.ratingAverage}
+                  totalrating={card.totalrating}
+                  price={card.price}
+                  isGig={card.isGig}
+                />
               ))}
             </div>
-            <div className="text-md font-semibold">Switch to Selling</div>
-          </div>
-          <div
-            className={` justify-between md:hidden ${
-              mobileMenuVisible ? "flex flex-col gap-y-3" : "hidden"
-            }`}
-          >
-            <div className=" gap-y-3 flex flex-col">
-              {categories.map((category, index) => (
-                <div
-                  key={index}
-                  onMouseEnter={() => setExpandedCategory(index)}
+
+            {/* Pagination */}
+            <div className="flex justify-center items-center mt-5">
+              <button className="border rounded px-3 py-1 mx-1">&lt;</button>
+              {[1, 2, 3, 4, 5].map((page) => (
+                <button
+                  key={page}
+                  className="border rounded px-3 py-1 mx-1 hover:bg-blue-500 hover:text-white"
                 >
-                  <Link
-                    to={`/Category/${category.name}`}
-                    className="text-md font-semibold"
-                  >
-                    {category.name}
-                  </Link>
-                </div>
+                  {page}
+                </button>
               ))}
-            </div>
-            <div className="text-md font-semibold">Switch to Selling</div>
-          </div>
-          <div
-            className={`bg-blue-600 absolute  flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
-              expandedCategory !== null
-                ? "translate-y-3 opacity-100 z-20"
-                : "translate-y-0 opacity-0 -z-50"
-            } 
-          
-          `}
-          >
-            <div
-              className={`gap-y-5 grid grid-cols-1 md:grid-cols-2 w-1/2 md:ml-8 mx-2 my-2`}
-            >
-              {expandedCategory !== null &&
-                categories[expandedCategory].subCategories.map(
-                  (subCat, subIndex) => (
-                    <Link
-                      to={`/Category/${categories[expandedCategory].name}/${subCat.name}`}
-                      key={subIndex}
-                    >
-                      <div
-                        key={subIndex}
-                        className="py-1 px-2 transition duration-300 cursor-pointer hover:translate-x-3 mr-2 self-center hover:bg-blue-700 hover:text-white
-"
-                        onMouseEnter={() => setHoveredSubCategory(subCat.image)}
-                        onMouseLeave={() => setHoveredSubCategory(null)}
-                      >
-                        {subCat.name}
-                      </div>
-                    </Link>
-                  )
-                )}
-            </div>
-            <div
-              className={`w-1/2 flex justify-center items-center py-5 px-2 transition-transform  transform ${
-                hoveredSubCategory
-                  ? "scale-100 opacity-100"
-                  : "scale-90 opacity-0"
-              } duration-500 ease-in-out`}
-            >
-              <img
-                src={hoveredSubCategory || ""}
-                alt="Subcategory"
-                className="md:h-60 h-52 object-cover rounded-lg shadow-lg"
-              />
+              <button className="border rounded px-3 py-1 mx-1">&gt;</button>
             </div>
           </div>
         </div>
-        <SignUpModal
-          visible={signUpModalVisible}
-          onClose={() => setSignUpModalVisible(false)}
-        />
-        <SignInModal
-          visible={signInModalVisible}
-          onClose={() => setSignInModalVisible(false)}
-        />
-      </header>
-    </>
-  );
-};
+      </div>
 
-export default Header;
+      <Footer />
+    </div>
+  );
+}
