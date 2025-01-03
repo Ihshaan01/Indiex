@@ -11,22 +11,24 @@ import FAQPage from "./pages/FAQPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route>
-          <Route index element={<Home />} />
-          <Route path="/DetailPage" element={<DetailPage />} />
-          <Route path="/Landing" element={<LandingPage />} />
-          <Route path="/Cart" element={<Cart />} />
-          <Route
-            path="/Category/:categoryName/:subCategoryName"
-            element={<Category />}
-          />
-          <Route path="/Category/:categoryName" element={<Category />} />
-          <Route path="/faq/:faqType" element={<FAQPage />} />
-          <Route path="*" element={<NoPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <div className="bg-gray-800">
+      <BrowserRouter>
+        <Routes>
+          <Route>
+            <Route index element={<Home />} />
+            <Route path="/DetailPage" element={<DetailPage />} />
+            <Route path="/Landing" element={<LandingPage />} />
+            <Route path="/Cart" element={<Cart />} />
+            <Route
+              path="/Category/:categoryName/:subCategoryName"
+              element={<Category />}
+            />
+            <Route path="/Category/:categoryName" element={<Category />} />
+            <Route path="/faq/:faqType" element={<FAQPage />} />
+            <Route path="*" element={<NoPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }

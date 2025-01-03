@@ -10,7 +10,7 @@ export default function Footer() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-blue-600 w-full py-10 grid grid-cols-2">
+    <div className="bg-gray-900 w-full py-10 grid grid-cols-2">
       <div className="w-full grid grid-cols-2 ml-5 ">
         <div className="flex flex-col">
           <h1 className="text-white text-xl font-bold">Sell Assets</h1>

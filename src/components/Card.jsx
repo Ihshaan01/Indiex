@@ -12,7 +12,7 @@ const Card = ({
   isGig,
 }) => {
   return (
-    <div className="max-w-sm rounded-lg overflow-hidden shadow-lg border border-gray-200 transform hover:scale-105 scale-100 duration-300">
+    <div className="max-w-sm rounded-lg overflow-hidden shadow-lg border border-gray-900 bg-white transform hover:scale-105 scale-100 duration-300">
       <div className="relative">
         <img className="w-full h-48 object-cover" src={image} alt={gigName} />
       </div>

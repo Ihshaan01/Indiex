@@ -142,7 +142,7 @@ const Header = () => {
   return (
     <>
       <header
-        className="bg-blue-600 text-white py-4 px-8 "
+        className="bg-gray-900 text-white py-4 px-8 "
         onMouseLeave={() => {
           setExpandedCategory(null);
           setmobileMenuVisible(false);
@@ -224,7 +224,7 @@ const Header = () => {
                 <div
                   key={index}
                   onMouseEnter={() => setExpandedCategory(index)}
-                  className="hover:bg-blue-700 p-2 rounded-md transition-colors duration-300"
+                  className="hover:bg-gray-700 p-2 rounded-md transition-colors duration-300"
                 >
                   <Link
                     to={`/Category/${category.name}`}
@@ -260,7 +260,7 @@ const Header = () => {
             <div className="text-md font-semibold">Switch to Selling</div>
           </div>
           <div
-            className={`bg-blue-600 absolute  flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
+            className={`bg-gray-900 absolute  flex w-full left-0 transition-transform duration-300  border-t-2 md:border-t-0  ${
               expandedCategory !== null
                 ? "translate-y-3 opacity-100 z-20"
                 : "translate-y-0 opacity-0 -z-50"
@@ -280,7 +280,7 @@ const Header = () => {
                     >
                       <div
                         key={subIndex}
-                        className="py-1 px-2 transition duration-300 cursor-pointer hover:translate-x-3 mr-2 self-center hover:bg-blue-700 hover:text-white
+                        className="py-1 px-2 transition duration-300 cursor-pointer hover:translate-x-3 mr-2 self-center hover:bg-gray-700 hover:text-white
 "
                         onMouseEnter={() => setHoveredSubCategory(subCat.image)}
                         onMouseLeave={() => setHoveredSubCategory(null)}
