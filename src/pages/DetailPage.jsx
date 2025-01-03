@@ -67,11 +67,11 @@ function DetailPage() {
   return (
     <div>
       <Header />
-      <div className="grid grid-cols-[65%_35%] mt-5 ">
-        <div className=" pl-12">
+      <div className="grid grid-cols-1 md:grid-cols-[65%_35%] mt-5 ">
+        <div className=" px-3 md:pl-12">
           <SliderCarasoul product={product} />
         </div>
-        <div className=" p-6">
+        <div className=" p-6 text-white">
           <p className="text-xl font-semibold">Product Name</p>
           <div className="flex flex-row justify-between mt-2">
             <div className="gap-2 flex justify-center items-center">
@@ -84,7 +84,7 @@ function DetailPage() {
                 // editable
                 // ratingChanged={(val) => console.log(val)}
               />
-              <span className="text-gray-500 text-sm">
+              <span className="text-gray-400 text-sm">
                 {4} ({450})
               </span>
             </div>
@@ -97,7 +97,7 @@ function DetailPage() {
             )}
             <p
               className={` text-black  ${
-                discount && "text-gray-500 line-through text-xl font-semibold"
+                discount && "text-gray-400 line-through text-xl font-semibold"
               }`}
             >
               ${price}
@@ -140,15 +140,18 @@ function DetailPage() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-[65%_35%] mt-5 ">
+      <div className="grid  grid-cols-1 md:grid-cols-[65%_35%] mt-5 ">
         <div>
           <TabbedDetails />
         </div>
         <div></div>
       </div>
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10"> You Might Also Like</h3>
-        <div className="grid grid-cols-4 gap-4 mx-10">
+        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
+          {" "}
+          You Might Also Like
+        </h3>
+        <div className="grid md:grid-cols-4 gap-4 mx-10">
           {CardData.map((card, index) => (
             <Card
               key={index}
@@ -164,8 +167,11 @@ function DetailPage() {
         </div>
       </div>
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10"> More from same store</h3>
-        <div className="grid grid-cols-4 gap-4 mx-10">
+        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
+          {" "}
+          More from same store
+        </h3>
+        <div className="grid md:grid-cols-4 gap-4 mx-10">
           {CardData.map((card, index) => (
             <Card
               key={index}

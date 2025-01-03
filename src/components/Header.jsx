@@ -146,7 +146,6 @@ const Header = () => {
         onMouseLeave={() => {
           setExpandedCategory(null);
           setmobileMenuVisible(false);
-          null;
         }}
       >
         <div className="z-20">
@@ -194,12 +193,12 @@ const Header = () => {
             </IconContext.Provider>
           </div>
           <div
-            className={`bg-white w-36 h-16 flex flex-col justify-center p-2 items-start absolute right-5 rounded-md shadow-md ${
-              !userModalVisible && "hidden"
+            className={`bg-gray-700  w-36 h-16 flex flex-col justify-center p-2 items-start absolute right-5 rounded-md shadow-md ${
+              !userModalVisible ? "hidden" : "z-10"
             }`}
           >
             <button
-              className="text-gray-700 text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+              className="  text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
               onClick={() => {
                 setSignUpModalVisible(true);
                 setUserModalVisible(false);
@@ -209,7 +208,7 @@ const Header = () => {
             </button>
             <div className="border-b-2 w-full my-1" />
             <button
-              className="text-gray-700 text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+              className=" text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
               onClick={() => {
                 setSignInModalVisible(true);
                 setUserModalVisible(false);
@@ -223,7 +222,10 @@ const Header = () => {
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  onMouseEnter={() => setExpandedCategory(index)}
+                  onMouseEnter={() => {
+                    setExpandedCategory(index);
+                    setUserModalVisible(false);
+                  }}
                   className="hover:bg-gray-700 p-2 rounded-md transition-colors duration-300"
                 >
                   <Link
@@ -248,12 +250,7 @@ const Header = () => {
                   key={index}
                   onMouseEnter={() => setExpandedCategory(index)}
                 >
-                  <Link
-                    to={`/Category/${category.name}`}
-                    className="text-md font-semibold"
-                  >
-                    {category.name}
-                  </Link>
+                  {category.name}
                 </div>
               ))}
             </div>

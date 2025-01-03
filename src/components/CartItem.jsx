@@ -8,7 +8,7 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
   const discountedPrice = price - (price * discount) / 100;
 
   return (
-    <div className="flex justify-between items-center border-b pb-4 mb-4 w-full mt-3">
+    <div className="flex justify-between items-center border-b pb-4 mb-4 w-full mt-3 ">
       {/* Product Info Section */}
       <div className="flex items-start gap-4">
         <img
@@ -18,8 +18,8 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
         />
         <div className="flex flex-col  items-start justify-between h-24">
           <div>
-            <h5 className="text-gray-500 text-xs">{storeName}</h5>
-            <h4 className="text-gray-800 font-semibold text-lg">{gigName}</h4>
+            <h5 className="text-gray-400 text-xs">{storeName}</h5>
+            <h4 className="text-gray-200 font-semibold text-lg">{gigName}</h4>
           </div>
 
           <button
@@ -48,7 +48,7 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
         <div className="flex items-center gap-2">
           <label
             htmlFor="quantity"
-            className="text-gray-600 text-sm font-semibold"
+            className="text-gray-400 text-sm font-semibold"
           >
             Quantity
           </label>

@@ -88,9 +88,9 @@ export default function Footer() {
         </div>
       </div>
       <div className="justify-center flex items-center">
-        <div className="rounded-md bg-white  w-4/6 justify-center flex">
+        <div className="rounded-md bg-gray-300  w-4/6 justify-center flex">
           <input
-            className="rounded-md h-9 px-2 w-11/12 mr-2 focus:outline focus:outline-none "
+            className="rounded-md h-9 px-2 w-11/12 bg-gray-300 mr-2 focus:outline focus:outline-none "
             placeholder="Search"
           />
           <button>

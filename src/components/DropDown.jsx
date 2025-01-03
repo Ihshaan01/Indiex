@@ -13,7 +13,7 @@ export const DropDown = ({ buttonLabel, items, onSelect }) => {
     onSelect(item.val);
   };
   return (
-    <div className="relative">
+    <div className="relative text-white">
       <button
         type="button"
         className="inline-flex items-center justify-center rounded-md text-sm border border-[#e4e4e7] h-10 px-4 py-2"
@@ -34,15 +34,19 @@ export const DropDown = ({ buttonLabel, items, onSelect }) => {
         </span>
       </button>
       {open && (
-        <div className="absolute top-full mt-1 px-3 w-auto shadow-md rounded-md p-1 border bg-white z-10">
+        <div className="absolute top-full mt-1 px-3 w-auto shadow-md rounded-md p-1 border bg-gray-700 z-10">
           <ul>
             {items.map((item, index) => (
               <li
                 key={index}
-                className="relative flex items-center w-auto gap-2 px-4 py-2 text-sm hover:bg-gray-100 rounded-md cursor-pointer  whitespace-nowrap overflow-hidden text-ellipsis"
+                className="relative flex items-center w-auto gap-2 px-4 py-2 text-sm hover:bg-gray-500 rounded-md cursor-pointer  whitespace-nowrap overflow-hidden text-ellipsis"
                 onClick={() => handleSelect(item)}
               >
-                {item.val}
+                {item.val == buttonLabel &&
+                item.val !== "1" &&
+                item.val !== "10"
+                  ? "None"
+                  : item.val}
               </li>
             ))}
           </ul>

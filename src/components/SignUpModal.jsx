@@ -8,7 +8,7 @@ const SignUpModal = ({ visible, onClose }) => {
       }`}
     >
       {/* Modal Container */}
-      <div className="flex w-11/12 max-w-4xl h-5/6 bg-white rounded-lg overflow-hidden">
+      <div className="flex w-11/12 max-w-4xl h-5/6 bg-gray-800  rounded-lg overflow-hidden">
         {/* Promotional Section */}
         <div className="flex-1 bg-red-500 relative">
           {/* <div
@@ -28,12 +28,12 @@ const SignUpModal = ({ visible, onClose }) => {
 
         {/* Signup Section */}
         <div className="flex-1 p-6 flex flex-col justify-center">
-          <h2 className="text-2xl font-bold mb-4 text-black">
+          <h2 className="text-2xl font-bold mb-4 text-white">
             Sign Up to Your Account
           </h2>
-          <p className="text-sm text-gray-600 mb-6">
-            Have an account?{" "}
-            <span className="text-blue-500 underline cursor-pointer">
+          <p className="text-sm text-gray-300 mb-6">
+            Have an account?
+            <span className="text-blue-400 underline cursor-pointer">
               Sign In here
             </span>
           </p>
@@ -55,7 +55,7 @@ const SignUpModal = ({ visible, onClose }) => {
           <button className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">
             Sign Up
           </button>
-          <p className="text-xs text-gray-500 mt-4 text-center">
+          <p className="text-xs text-gray-400 mt-4 text-center">
             By signing up, you agree to our terms and conditions. Lorem ipsum
             dolor sit amet, consectetur adipiscing elit.
           </p>
@@ -65,7 +65,7 @@ const SignUpModal = ({ visible, onClose }) => {
       {/* Close Button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-gray-200 hover:text-red-900 transition hover:scale-100 scale-90"
+        className="absolute top-4 right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-gray-200 hover:text-red-900 transition hover:scale-100 scale-90 hover:rotate-180"
       >
         ✕
       </button>

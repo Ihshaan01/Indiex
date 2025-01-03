@@ -136,30 +136,7 @@ const FAQPage = () => {
   return (
     <div>
       <Header />
-      <div className="container mx-auto py-3 px-5">
-        {/* Navigation buttons */}
-        <div className="text-center">
-          <motion.button
-            className="text-white text-sm text-start"
-            onClick={() => setShowPublisherFAQ(true)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            Publisher FAQ
-          </motion.button>
-          <br />
-          <motion.button
-            className="text-white text-sm text-start mt-2"
-            onClick={() => setShowPublisherFAQ(false)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            FAQ
-          </motion.button>
-        </div>
-
+      <div className="container mx-auto py-3 px-5 text-white">
         {/* FAQ Section with animations */}
         {showPublisherFAQ ? (
           <motion.div

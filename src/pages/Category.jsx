@@ -252,8 +252,8 @@ export default function Category() {
       <Header />
       <HeroBanner type="short" />
 
-      <div className="container mx-auto my-10">
-        <div className="grid grid-cols-[20%_80%] mx-10 gap-5">
+      <div className="container mx-auto my-10 text-gray-300">
+        <div className="grid  md:grid-cols-[20%_80%] md:mx-10 gap-5">
           {/* Sidebar */}
           <div className="p-4 rounded">
             <ul>
@@ -275,8 +275,8 @@ export default function Category() {
                           <li
                             className={`text-sm font-medium p-1 cursor-pointer transition duration-300 ${
                               selectedSubCategory === subCategory.name
-                                ? "bg-blue-200 text-blue-700"
-                                : "hover:bg-gray-200"
+                                ? "bg-gray-500 "
+                                : "hover:bg-gray-600 "
                             }`}
                           >
                             {subCategory.name}
@@ -290,7 +290,7 @@ export default function Category() {
           </div>
 
           {/* Main Content */}
-          <div>
+          <div className="flex flex-col px-3">
             <div className="mb-5">
               <h1 className="text-2xl font-bold">
                 {subCategoryName
@@ -362,7 +362,7 @@ export default function Category() {
             </div>
 
             {/* Card Grid */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 grid-cols-1 gap-y-4 self-center w-11/12">
               {cards.map((card, index) => (
                 <Card
                   key={index}

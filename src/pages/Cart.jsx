@@ -103,8 +103,8 @@ function Cart() {
       <Header />
       <div className="mb-20" />
       {items.length > 0 ? (
-        <div className="grid grid-cols-[70%_30%] mx-10 gap-2  ">
-          <div className="flex flex-col justify-center items-center shadow-md p-3 px-5">
+        <div className="grid md:grid-cols-[70%_30%] mx-10 gap-2 text-gray-200 ">
+          <div className="flex flex-col justify-center items-center shadow-md p-3 px-5 bg-[#171f29] rounded">
             <div className="flex flex-row justify-between w-full ">
               <p className="text-2xl font-semibold">
                 {items.length} item in Your Cart
@@ -124,7 +124,7 @@ function Cart() {
               ))}
             </div>
           </div>
-          <div className="flex justify-center items-center shadow-md max-h-96 ">
+          <div className="flex justify-center items-center shadow-md max-h-96 bg-[#171f29] rounded">
             <CartSummary
               subtotal={subtotal}
               itemsCount={itemsCount}
@@ -135,13 +135,18 @@ function Cart() {
         </div>
       ) : (
         <div className=" h-96 w-full my-10 flex justify-center items-center">
-          <p className="text-xl font-semibold">Your cart is empty!</p>
+          <p className="text-xl font-semibold text-white">
+            Your cart is empty!
+          </p>
         </div>
       )}
 
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10"> You Might Also Like</h3>
-        <div className="grid grid-cols-4 gap-4 mx-10">
+        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
+          {" "}
+          You Might Also Like
+        </h3>
+        <div className="grid md:grid-cols-4 gap-4 mx-10">
           {CardData.map((card, index) => (
             <Card
               key={index}

@@ -20,7 +20,7 @@ const TabbedDetails = () => {
               className={`flex-1 text-center py-2 ${
                 activeTab === tab
                   ? "border-b-2 border-blue-500 text-blue-500"
-                  : "text-gray-500"
+                  : "text-gray-400"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -32,7 +32,7 @@ const TabbedDetails = () => {
 
       {/* Content Sections */}
       {activeTab === "OverView" && (
-        <div className="space-y-6 mt-4">
+        <div className="space-y-6 mt-4 text-white">
           {/* Description */}
           <div>
             <button
@@ -53,7 +53,7 @@ const TabbedDetails = () => {
                   : "max-h-0 opacity-0"
               }`}
             >
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-300">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
                 enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -83,7 +83,7 @@ const TabbedDetails = () => {
                   : "max-h-0 opacity-0"
               }`}
             >
-              <p className="mt-2 text-gray-600">Add technical details here.</p>
+              <p className="mt-2 text-gray-300">Add technical details here.</p>
             </div>
           </div>
 
@@ -126,8 +126,8 @@ const TabbedDetails = () => {
 
       {activeTab === "Package Contents" && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold">Package Contents</h2>
-          <ul className="list-disc pl-5 mt-4 text-gray-600">
+          <h2 className="text-xl font-bold text-white">Package Contents</h2>
+          <ul className="list-disc pl-5 mt-4 text-gray-300">
             <li>1x Item 1</li>
             <li>1x Item 2</li>
             <li>1x Item 3</li>
@@ -138,21 +138,21 @@ const TabbedDetails = () => {
 
       {activeTab === "Publisher Info" && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold">Publisher Info</h2>
-          <p className="mt-4 text-gray-600">Publisher: Awesome Games Ltd.</p>
-          <p className="mt-2 text-gray-600">Founded: 2010</p>
-          <p className="mt-2 text-gray-600">Contact: info@awesomegames.com</p>
+          <h2 className="text-xl font-bold text-white">Publisher Info</h2>
+          <p className="mt-4 text-gray-300">Publisher: Awesome Games Ltd.</p>
+          <p className="mt-2 text-gray-300">Founded: 2010</p>
+          <p className="mt-2 text-gray-300">Contact: info@awesomegames.com</p>
         </div>
       )}
 
       {activeTab === "Reviews" && (
         <div className="mt-4">
-          <h2 className="text-xl font-bold">Reviews</h2>
+          <h2 className="text-xl font-bold text-white">Reviews</h2>
           <div className="mt-4 space-y-4">
             {[1, 2, 3].map((review) => (
               <div key={review} className="border p-4 rounded-md">
-                <p className="font-semibold">User {review}</p>
-                <p className="text-gray-600 mt-2">
+                <p className="font-semibold text-gray-200">User {review}</p>
+                <p className="text-gray-300 mt-2">
                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
                   do eiusmod tempor incididunt ut labore et dolore magna
                   aliqua."
