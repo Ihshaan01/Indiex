@@ -41,7 +41,7 @@ export default function LandingPage() {
       </section>
 
       {/* Assets Being Used in Multiple Projects */}
-      <section className="py-16 bg-gray-50 px-5">
+      <section className="py-16 bg-gray-200 px-5">
         <div className="container mx-auto text-center">
           <motion.h2
             className="text-3xl font-bold mb-8"

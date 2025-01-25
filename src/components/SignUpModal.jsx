@@ -1,6 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
+import apiClient from "../middleware/apiMiddleware";
+import useAuthStore from "../store/authStore";
 
 const SignUpModal = ({ visible, onClose }) => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const setUser = useAuthStore((state) => state.setUser);
+  const setToken = useAuthStore((state) => state.setToken);
+  const handleSignUp = async () => {
+    try {
+      const response = await apiClient.post("/users/signup", {
+        username,
+        email,
+        password,
+      });
+      const { user, token } = response.data;
+      console.log(user, token);
+      // Update Zustand store with user and token
+      setUser(user);
+      setToken(token);
+
+      alert("Sign Up Successful!");
+      onClose(); // Close the modal
+    } catch (error) {
+      console.error(error);
+      alert("Sign Up Failed. Please try again.");
+    }
+  };
   return (
     <div
       className={`fixed inset-0  flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300 ease-in-out ${
@@ -40,19 +67,28 @@ const SignUpModal = ({ visible, onClose }) => {
           <input
             type="text"
             placeholder="User Name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input
             type="password"
             placeholder="Password"
-            className="w-full p-2 mb-6 border text-black  rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 mb-6 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          <button className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">
+          <button
+            onClick={handleSignUp}
+            className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+          >
             Sign Up
           </button>
           <p className="text-xs text-gray-400 mt-4 text-center">

@@ -5,6 +5,7 @@ import { IconContext } from "react-icons";
 import SignUpModal from "./SignUpModal";
 import SignInModal from "./SignInModel";
 import { Link } from "react-router-dom";
+import useAuthStore from "../store/authStore";
 const Header = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [hoveredSubCategory, setHoveredSubCategory] = useState(null);
@@ -12,7 +13,8 @@ const Header = () => {
   const [signInModalVisible, setSignInModalVisible] = useState(false);
   const [userModalVisible, setUserModalVisible] = useState(false);
   const [mobileMenuVisible, setmobileMenuVisible] = useState(false);
-
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { token, clearToken } = useAuthStore();
   const categories = [
     {
       name: "Assets",
@@ -138,7 +140,10 @@ const Header = () => {
       ],
     },
   ];
-
+  const handleLogout = () => {
+    clearToken(); // Clear token to log out the user
+    setUserModalVisible(false);
+  };
   return (
     <>
       <header
@@ -197,26 +202,52 @@ const Header = () => {
               !userModalVisible ? "hidden" : "z-10"
             }`}
           >
-            <button
-              className="  text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
-              onClick={() => {
-                setSignUpModalVisible(true);
-                setUserModalVisible(false);
-              }}
-            >
-              Sign Up
-            </button>
-            <div className="border-b-2 w-full my-1" />
-            <button
-              className=" text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
-              onClick={() => {
-                setSignInModalVisible(true);
-                setUserModalVisible(false);
-              }}
-            >
-              Sign In
-            </button>
+            {token ? (
+              // Show Profile and Logout if the user is signed in
+              <>
+                <button
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={() => {
+                    console.log("Profile clicked");
+                    setUserModalVisible(false);
+                  }}
+                >
+                  Profile
+                </button>
+                <div className="border-b-2 w-full my-1" />
+                <button
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              // Show Sign Up and Sign In if the user is not signed in
+              <>
+                <button
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={() => {
+                    setSignUpModalVisible(true);
+                    setUserModalVisible(false);
+                  }}
+                >
+                  Sign Up
+                </button>
+                <div className="border-b-2 w-full my-1" />
+                <button
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={() => {
+                    setSignInModalVisible(true);
+                    setUserModalVisible(false);
+                  }}
+                >
+                  Sign In
+                </button>
+              </>
+            )}
           </div>
+
           <div className=" justify-between hidden md:flex">
             <div className=" gap-x-20 flex">
               {categories.map((category, index) => (

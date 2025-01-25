@@ -1,6 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
+import apiClient from "../middleware/apiMiddleware";
+import useAuthStore from "../store/authStore";
 
 const SignInModal = ({ visible, onClose }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { setToken, setUser } = useAuthStore(); // Zustand store action for setting token
+
+  const handleSignIn = async () => {
+    try {
+      setError(""); // Reset any existing error
+      const response = await apiClient.post("/users/signin", {
+        email,
+        password,
+      });
+
+      // Store the token in Zustand and localStorage
+      const { token, user } = response.data;
+      setToken(token);
+      setUser(user);
+      alert(`Welcome, ${user.username}!`);
+      onClose(); // Close the modal
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong!");
+    }
+  };
   return (
     <div
       className={`fixed inset-0  flex items-center justify-center bg-black bg-opacity-50 transition-all duration-300 ease-in-out ${
@@ -38,17 +63,25 @@ const SignInModal = ({ visible, onClose }) => {
               Sign Up here
             </span>
           </p>
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <input
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input
             type="password"
             placeholder="Password"
-            className="w-full p-2 mb-6 border text-black  rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 mb-6 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          <button className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">
+          <button
+            onClick={handleSignIn}
+            className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+          >
             Sign In
           </button>
           <p className="text-xs text-gray-400 mt-4 text-center">
