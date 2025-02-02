@@ -1,14 +1,14 @@
 import axios from "axios";
-import { useUserStore } from "../store/userStore";
+import useAuthStore from "../store/authStore";
 
 // Axios instance with middleware
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api", // Replace with your backend URL
+  baseURL: "https://backend-main-zeta.vercel.app/api", // Replace with your backend URL
 });
 
 // Request interceptor for attaching token
 apiClient.interceptors.request.use((config) => {
-  const token = useUserStore.getState().token;
+  const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -20,7 +20,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useUserStore.getState().clearUser(); // Clear user data if token is invalid
+      useAuthStore.getState().clearToken(); // Clear user data if token is invalid
     }
     return Promise.reject(error);
   }

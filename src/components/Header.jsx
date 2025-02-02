@@ -6,6 +6,9 @@ import SignUpModal from "./SignUpModal";
 import SignInModal from "./SignInModel";
 import { Link } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import apiClient from "../middleware/apiMiddleware";
+import { FaChartColumn } from "react-icons/fa6";
+import { Tooltip } from "react-tooltip";
 const Header = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [hoveredSubCategory, setHoveredSubCategory] = useState(null);
@@ -14,7 +17,7 @@ const Header = () => {
   const [userModalVisible, setUserModalVisible] = useState(false);
   const [mobileMenuVisible, setmobileMenuVisible] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const { token, clearToken } = useAuthStore();
+  const { token, user, setUser, clearToken } = useAuthStore();
   const categories = [
     {
       name: "Assets",
@@ -144,6 +147,33 @@ const Header = () => {
     clearToken(); // Clear token to log out the user
     setUserModalVisible(false);
   };
+
+  const handleRoleSwitch = async () => {
+    try {
+      let newrole = user?.role == "seller" ? "buyer" : "seller";
+      const response = await apiClient.put(
+        "/users/update-role", // Your API URL
+        { userId: user.id, newRole: newrole }, // Payload
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in headers
+          },
+        }
+      );
+
+      // Update user in Zustand store
+      setUser(response.data.user);
+
+      alert("Role updated successfully!");
+    } catch (error) {
+      console.error(
+        "Error updating role:",
+        error.response?.data || error.message
+      );
+      alert("Failed to update role.");
+    }
+  };
+
   return (
     <>
       <header
@@ -165,15 +195,32 @@ const Header = () => {
               }}
             >
               <div className="flex gap-3">
-                <button className="hover:scale-110 scale-100 transition-transform">
+                <button
+                  className="hover:scale-110 scale-100 transition-transform"
+                  data-tooltip-id="Search"
+                  data-tooltip-content="Search"
+                >
                   <CiSearch />
                 </button>
                 <Link
                   to="/Cart"
                   className="hover:scale-110 scale-100 transition-transform"
+                  data-tooltip-id="Cart"
+                  data-tooltip-content="Cart"
                 >
                   <CiShoppingCart />
                 </Link>
+                {user?.role == "seller" && (
+                  <Link
+                    to="/Dashboard"
+                    className="hover:scale-110 scale-100 transition-transform"
+                    data-tooltip-id="Dashboard"
+                    data-tooltip-content="Dashboard"
+                  >
+                    <FaChartColumn />
+                  </Link>
+                )}
+
                 <button
                   className="hover:scale-110 scale-100 transition-transform"
                   onClick={() => {
@@ -181,9 +228,12 @@ const Header = () => {
                     setmobileMenuVisible(false);
                     setUserModalVisible(!userModalVisible);
                   }}
+                  data-tooltip-id="Menu"
+                  data-tooltip-content="Menu"
                 >
                   <IoPersonOutline />
                 </button>
+
                 <button
                   className="hover:scale-110 scale-100 transition-transform md:hidden"
                   onClick={() => {
@@ -198,13 +248,23 @@ const Header = () => {
             </IconContext.Provider>
           </div>
           <div
-            className={`bg-gray-700  w-36 h-16 flex flex-col justify-center p-2 items-start absolute right-5 rounded-md shadow-md ${
+            className={`bg-gray-700  min-w-36 w-auto h-auto gap-y-2 flex flex-col justify-center p-2 items-start absolute right-5 rounded-md shadow-md ${
               !userModalVisible ? "hidden" : "z-10"
             }`}
           >
             {token ? (
               // Show Profile and Logout if the user is signed in
               <>
+                <Link
+                  to="/profile" // Replace "/profile" with the actual route for your profile page
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={() => {
+                    setUserModalVisible(false); // Close the modal when navigating
+                  }}
+                >
+                  Profile
+                </Link>
+                <div className="border-b-2 w-full my-1" />
                 <button
                   className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
                   onClick={() => {
@@ -212,7 +272,17 @@ const Header = () => {
                     setUserModalVisible(false);
                   }}
                 >
-                  Profile
+                  My Assets And Games
+                </button>
+                <div className="border-b-2 w-full my-1" />
+                <button
+                  className="text-sm font-semibold w-full text-start transition-transform duration-300 hover:scale-105 hover:translate-x-2"
+                  onClick={() => {
+                    console.log("Profile clicked");
+                    setUserModalVisible(false);
+                  }}
+                >
+                  Order History
                 </button>
                 <div className="border-b-2 w-full my-1" />
                 <button
@@ -268,7 +338,17 @@ const Header = () => {
                 </div>
               ))}
             </div>
-            <div className="text-md font-semibold">Switch to Selling</div>
+            <div className="text-md font-semibold">
+              {token && (
+                <button onClick={handleRoleSwitch}>
+                  {user?.role == "seller" ? (
+                    <span>Switch to Buying</span>
+                  ) : (
+                    <span>Switch to Selling</span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
           <div
             className={` justify-between md:hidden ${
@@ -342,6 +422,9 @@ const Header = () => {
           visible={signInModalVisible}
           onClose={() => setSignInModalVisible(false)}
         />
+        <Tooltip id="Dashboard" />
+        <Tooltip id="Cart" />
+        <Tooltip id="Search" />
       </header>
     </>
   );

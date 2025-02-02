@@ -3,21 +3,21 @@ import StarRating from "./StarRating";
 
 const Card = ({
   image,
-  gigName,
+  Name,
   storeName,
   totalrating,
   ratingAverage,
   discount,
   price,
-  isGig,
+  type,
 }) => {
   return (
     <div className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-gray-700 transform hover:scale-105 scale-100 duration-300">
       <div className="relative">
-        <img className="w-full h-48 object-cover" src={image} alt={gigName} />
+        <img className="w-full h-48 object-cover" src={image} alt={Name} />
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-bold text-white mb-2">{gigName}</h3>
+        <h3 className="text-lg font-bold text-white mb-2">{Name}</h3>
         <div className="flex items-center">
           <StarRating rating={4.5} />
           <span className="text-gray-400 text-sm">
@@ -42,7 +42,7 @@ const Card = ({
                 {discount}% OFF
               </span>
             </div>
-          ) : isGig ? (
+          ) : type == "gig" ? (
             <h4 className="text-md font-bold text-white mb-2">From ${price}</h4>
           ) : (
             <h4 className="text-md font-bold text-white mb-2">${price}</h4>

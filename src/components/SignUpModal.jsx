@@ -6,6 +6,8 @@ const SignUpModal = ({ visible, onClose }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const setUser = useAuthStore((state) => state.setUser);
   const setToken = useAuthStore((state) => state.setToken);
   const handleSignUp = async () => {
@@ -26,6 +28,8 @@ const SignUpModal = ({ visible, onClose }) => {
     } catch (error) {
       console.error(error);
       alert("Sign Up Failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -64,33 +68,62 @@ const SignUpModal = ({ visible, onClose }) => {
               Sign In here
             </span>
           </p>
-          <input
-            type="text"
-            placeholder="User Name"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 mb-6 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <button
-            onClick={handleSignUp}
-            className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
-          >
-            Sign Up
-          </button>
+          <form onSubmit={handleSignUp}>
+            <input
+              type="text"
+              placeholder="User Name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 mb-4 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 mb-6 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              type="submit"
+              className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
           <p className="text-xs text-gray-400 mt-4 text-center">
             By signing up, you agree to our terms and conditions. Lorem ipsum
             dolor sit amet, consectetur adipiscing elit.
