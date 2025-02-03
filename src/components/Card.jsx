@@ -32,10 +32,10 @@ const Card = ({
             <div className="flex justify-between">
               <div className="flex gap-x-2 ">
                 <h4 className="text-md font-bold text-white mb-2 line-through ">
-                  ${price}
+                  £{price}
                 </h4>
                 <h4 className="text-md text-red-500 font-bold  mb-2 ">
-                  ${price - price * (discount / 100)}
+                  £{price - price * (discount / 100)}
                 </h4>
               </div>
               <span className=" bg-red-500 text-white text-xs font-bold p-2 rounded">

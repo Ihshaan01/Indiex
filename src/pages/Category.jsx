@@ -362,7 +362,7 @@ export default function Category() {
             </div>
 
             {/* Card Grid */}
-            <div className="grid md:grid-cols-4 grid-cols-1 gap-y-4 self-center w-11/12">
+            <div className="grid md:grid-cols-4 grid-cols-1 gap-4 self-center w-11/12">
               {cards.map((card, index) => (
                 <Card
                   key={index}

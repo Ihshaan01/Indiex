@@ -219,20 +219,20 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      <div className="flex h-screen bg-gray-900 text-white border-t-2 border-gray-800 ">
+      <div className="flex  bg-gray-900 text-white border-t-2 border-gray-800 ">
         {/* Sidebar */}
         <aside className="w-64 bg-gray-800 p-4">
           <div className="flex items-center space-x-2 mb-6">
             <span className="text-xl font-bold">Dashboard</span>
           </div>
           <nav className="space-y-2">
-            {/* <a
+            <a
               href="#dashboard"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
             >
               <span className="mr-2">📊</span>
               Dashboard
-            </a> */}
+            </a>
 
             <a
               href="#assets"
@@ -266,11 +266,10 @@ const Dashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 overflow-y-auto example">
-          {/* <section id="dashboard" className="mb-12">
+        <main className="flex-1 p-6  example">
+          <section id="dashboard" className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -339,7 +338,7 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </motion.div>
             </div>
-          </section> */}
+          </section>
 
           {/* Assets Section */}
           <section id="assets" className="mb-12">
