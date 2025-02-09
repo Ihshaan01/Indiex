@@ -7,7 +7,7 @@ const SignInModal = ({ visible, onClose }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setToken, setUser } = useAuthStore();
+  const { setToken, setUser, setStore } = useAuthStore();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -19,10 +19,11 @@ const SignInModal = ({ visible, onClose }) => {
         password,
       });
 
-      const { token, user } = response.data;
+      const { token, user, store } = response.data;
       console.log(response.data);
       setToken(token);
       setUser(user);
+      setStore(store);
       alert(`Welcome, ${user.username}!`);
       onClose();
     } catch (err) {

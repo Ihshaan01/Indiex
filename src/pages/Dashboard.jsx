@@ -26,7 +26,7 @@ import CreateGamesForm from "../components/CreateGamesForm";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
 const Dashboard = () => {
-  const { user } = useAuthStore();
+  const { user, store, setStore } = useAuthStore();
   const [assets, setAssets] = useState([
     {
       image: "https://via.placeholder.com/150",
@@ -147,11 +147,15 @@ const Dashboard = () => {
   const [showCreateAsset, setShowCreateAsset] = useState(false);
   const [showCreateGigs, setShowCreateGigs] = useState(false);
   const [showCreateGames, setShowCreateGames] = useState(false);
-  const [storeSettings, setStoreSettings] = useState({
-    image: "a.a.a",
-    name: "DesignPro Studio",
-    description: "Your one-stop shop for creative assets and services.",
-  });
+  const [loading, setLoading] = useState(false);
+  const [storePreview, setStorePreview] = useState(store?.image || "");
+  const [storeSettings, setStoreSettings] = useState(
+    store || {
+      image: "",
+      name: "",
+      description: "",
+    }
+  );
 
   const [showAllAssets, setShowAllAssets] = useState(false);
   const [showAllGigs, setShowAllGigs] = useState(false);
@@ -186,6 +190,7 @@ const Dashboard = () => {
     e.preventDefault();
 
     const formData = new FormData();
+    formData.append("userId", user.id);
     formData.append("name", storeSettings.name);
     formData.append("description", storeSettings.description);
     if (storeSettings.image) {
@@ -196,6 +201,7 @@ const Dashboard = () => {
     const description = storeSettings.description;
     const image = storeSettings.image;
     try {
+      setLoading(true);
       const response = await apiClient.post("/users/store", {
         userId,
         name,
@@ -208,12 +214,46 @@ const Dashboard = () => {
         console.log(response.data);
 
         setMessage(response.data.message);
-        setStoreSettings(response.store);
+        setStoreSettings(response.data.store);
+        setStorePreview(response.data.store.image);
+        setStore(response.data.store);
       } else {
         setMessage(response.data.message || "Failed to create store.");
       }
     } catch (error) {
       setMessage("Error creating store.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditStore = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("storeId", store._id);
+    formData.append("name", storeSettings.name);
+    formData.append("description", storeSettings.description);
+    if (storeSettings.image) {
+      formData.append("image", storeSettings.image);
+    }
+    try {
+      setLoading(true);
+      const response = await apiClient.put("/users/update-store", formData);
+      console.log(response);
+
+      if (response.status == 200) {
+        setMessage(response.data.message);
+        setStoreSettings(response.data.store);
+        setStore(response.data.store);
+        setStorePreview(response.data.store.image);
+      } else {
+        setMessage(response.data.message || "Failed to Update store.");
+      }
+    } catch (error) {
+      setMessage("Error Updating store.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -389,15 +429,15 @@ const Dashboard = () => {
                 <h1 className="text-3xl font-bold mb-8">Store Settings</h1>
 
                 <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
-                  <form onSubmit={handleCreateStore}>
+                  <form onSubmit={store ? handleEditStore : handleCreateStore}>
                     <div className="space-y-6">
                       {/* Store Image */}
                       <div>
                         <label className="text-gray-400">Store Image</label>
 
-                        {storeSettings.image && (
+                        {storePreview && (
                           <img
-                            src={storeSettings.image}
+                            src={storePreview}
                             alt="Store Preview"
                             className="mt-4 w-24 h-24 rounded-lg object-cover"
                           />
@@ -412,13 +452,15 @@ const Dashboard = () => {
                               reader.onload = (event) => {
                                 setStoreSettings((prev) => ({
                                   ...prev,
-                                  image: event.target.result,
+                                  image: file,
                                 }));
                               };
                               reader.readAsDataURL(file);
+                              setStorePreview(URL.createObjectURL(file));
                             }
                           }}
                           className="w-full p-2 bg-gray-600 rounded-lg mt-2"
+                          required
                         />
                       </div>
 
@@ -436,6 +478,7 @@ const Dashboard = () => {
                           }
                           className="w-full p-2 bg-gray-600 rounded-lg mt-2"
                           placeholder="Enter store name"
+                          required
                         />
                       </div>
 
@@ -455,6 +498,7 @@ const Dashboard = () => {
                           className="w-full p-2 bg-gray-600 rounded-lg mt-2"
                           placeholder="Enter store description"
                           rows={4}
+                          required
                         />
                       </div>
 
@@ -464,7 +508,33 @@ const Dashboard = () => {
                           type="submit"
                           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                          Save Changes
+                          {loading ? (
+                            <span className="flex items-center">
+                              <svg
+                                className="animate-spin h-5 w-5 mr-2 text-white"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8v8H4z"
+                                ></path>
+                              </svg>
+                              Saving Changes...
+                            </span>
+                          ) : (
+                            "Save Changes"
+                          )}
                         </button>
                       </div>
                     </div>

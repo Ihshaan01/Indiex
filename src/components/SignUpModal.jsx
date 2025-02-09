@@ -8,8 +8,7 @@ const SignUpModal = ({ visible, onClose }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const setUser = useAuthStore((state) => state.setUser);
-  const setToken = useAuthStore((state) => state.setToken);
+  const { setToken, setUser, setStore } = useAuthStore();
   const handleSignUp = async () => {
     try {
       const response = await apiClient.post("/users/signup", {
@@ -17,12 +16,11 @@ const SignUpModal = ({ visible, onClose }) => {
         email,
         password,
       });
-      const { user, token } = response.data;
-      console.log(user, token);
+      const { user, token, store } = response.data;
       // Update Zustand store with user and token
       setUser(user);
       setToken(token);
-
+      setStore(store);
       alert("Sign Up Successful!");
       onClose(); // Close the modal
     } catch (error) {

@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import EditProfileForm from "../components/EditProfileForm";
 
 const ProfilePage = () => {
-  const { user } = useAuthStore(); // Get the user data from the store
+  const { user, setUser } = useAuthStore(); // Get the user data from the store
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const handleSaveProfile = (updatedProfile) => {
+    console.log(updatedProfile); // Update the user data in the store
+    setUser(updatedProfile);
+  };
 
   // If no user is logged in, show a message
   if (!user) {
@@ -67,17 +74,23 @@ const ProfilePage = () => {
 
             {/* Edit Profile Button */}
             <div className="mt-8">
-              <Link
-                to="/edit-profile" // Route to the edit profile page
+              <button
+                onClick={() => setIsEditDialogOpen(true)}
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Edit Profile
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </div>
       <Footer />
+      <EditProfileForm
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        user={user}
+        onSave={handleSaveProfile}
+      />
     </>
   );
 };

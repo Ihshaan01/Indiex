@@ -4,90 +4,143 @@ import HeroBanner from "../components/HeroBanner";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import {
+  cameraAssets,
+  CharacterPack,
+  CustomWebsiteDesign,
+  ExtremeRacing,
+  FantasyAdventure,
+  FPSBattleRoyale,
+  MindBenderPuzzle,
+  MobileAppDevelopment,
+  ProfessionalLogoDesigns,
+  SoundEffectBundle,
+  UIIconPack,
+  VoiceoverServices,
+} from "../assets";
 
 export default function Home() {
   const CardData = [
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Camera Assets",
+      image: cameraAssets,
+      name: "Camera Assets",
       storeName: "DesignPro Studio",
       ratingAverage: 4.5,
-      totalrating: 50,
+      totalRating: 50,
       discount: 20,
       price: 30,
       type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
+      image: CharacterPack,
+      name: "3D Character Pack",
+      storeName: "GameDev Hub",
+      ratingAverage: 4.8,
+      totalRating: 75,
+      discount: 15,
+      price: 50,
       type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
+      image: UIIconPack,
+      name: "UI Icon Pack",
+      storeName: "CreativePixels",
+      ratingAverage: 4.7,
+      totalRating: 90,
+      discount: 10,
+      price: 20,
       type: "asset",
     },
-
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
+      image: SoundEffectBundle,
+      name: "Sound Effects Bundle",
+      storeName: "AudioMasters",
+      ratingAverage: 4.6,
+      totalRating: 65,
+      discount: 5,
+      price: 15,
       type: "asset",
     },
   ];
+
   const GigsData = [
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Professional Logo Designs",
+      image: ProfessionalLogoDesigns,
+      name: "Professional Logo Designs",
       storeName: "DesignPro Studio",
       ratingAverage: 4.5,
-      totalrating: 50,
+      totalRating: 50,
       type: "gig",
       price: 30,
     },
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
+      image: MobileAppDevelopment,
+      name: "Mobile App Development",
+      storeName: "Tech Innovators",
+      ratingAverage: 4.8,
+      totalRating: 80,
       type: "gig",
-      price: 30,
+      price: 100,
     },
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
+      image: VoiceoverServices,
+      name: "Voiceover Services",
+      storeName: "VoiceMasters",
+      ratingAverage: 4.7,
+      totalRating: 70,
       type: "gig",
-      price: 30,
+      price: 50,
     },
-
     {
-      image: "https://via.placeholder.com/150",
-      Name: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
+      image: CustomWebsiteDesign,
+      name: "Custom Website Design",
+      storeName: "WebCreators",
+      ratingAverage: 4.6,
+      totalRating: 60,
       type: "gig",
-      price: 30,
+      price: 150,
     },
   ];
+
+  const GamesData = [
+    {
+      image: FantasyAdventure,
+      name: "Fantasy Adventure",
+      storeName: "EpicGames Studio",
+      ratingAverage: 4.5,
+      totalRating: 120,
+      type: "game",
+      price: 25,
+    },
+    {
+      image: FPSBattleRoyale,
+      name: "FPS Battle Royale",
+      storeName: "Warzone Studios",
+      ratingAverage: 4.7,
+      totalRating: 200,
+      type: "game",
+      price: 40,
+    },
+    {
+      image: ExtremeRacing,
+      name: "Extreme Racing",
+      storeName: "SpeedWay Games",
+      ratingAverage: 4.6,
+      totalRating: 180,
+      type: "game",
+      price: 35,
+    },
+    {
+      image: MindBenderPuzzle,
+      name: "Mind Bender Puzzle",
+      storeName: "BrainTeasers Inc.",
+      ratingAverage: 4.8,
+      totalRating: 90,
+      type: "game",
+      price: 15,
+    },
+  ];
+
   return (
     <div>
       <Header />
@@ -104,10 +157,10 @@ export default function Home() {
               <Card
                 key={index}
                 image={card.image}
-                Name={card.Name}
+                Name={card.name}
                 storeName={card.storeName}
                 ratingAverage={card.ratingAverage}
-                totalrating={card.totalrating}
+                totalrating={card.totalRating}
                 price={card.price}
                 type={card.type}
               />
@@ -125,10 +178,10 @@ export default function Home() {
             <Card
               key={index}
               image={card.image}
-              Name={card.Name}
+              Name={card.name}
               storeName={card.storeName}
               ratingAverage={card.ratingAverage}
-              totalrating={card.totalrating}
+              totalrating={card.totalRating}
               discount={card.discount}
               price={card.price}
               type={card.type}
@@ -139,14 +192,14 @@ export default function Home() {
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white"> Top Games</h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {CardData.map((card, index) => (
+          {GamesData.map((card, index) => (
             <Card
               key={index}
               image={card.image}
-              Name={card.Name}
+              Name={card.name}
               storeName={card.storeName}
               ratingAverage={card.ratingAverage}
-              totalrating={card.totalrating}
+              totalrating={card.totalRating}
               discount={card.discount}
               price={card.price}
               type={card.type}
