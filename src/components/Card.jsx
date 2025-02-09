@@ -43,9 +43,9 @@ const Card = ({
               </span>
             </div>
           ) : type == "gig" ? (
-            <h4 className="text-md font-bold text-white mb-2">From ${price}</h4>
+            <h4 className="text-md font-bold text-white mb-2">From £{price}</h4>
           ) : (
-            <h4 className="text-md font-bold text-white mb-2">${price}</h4>
+            <h4 className="text-md font-bold text-white mb-2">£{price}</h4>
           )}
         </div>
       </div>

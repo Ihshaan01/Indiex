@@ -40,8 +40,8 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
       <div className="flex flex-col items-end gap-4">
         {/* Pricing */}
         <div className="text-right mr-3">
-          <p className="text-red-500 font-bold text-lg">${discountedPrice}</p>
-          <p className="text-gray-400 line-through">${price}</p>
+          <p className="text-red-500 font-bold text-lg">£{discountedPrice}</p>
+          <p className="text-gray-400 line-through">£{price}</p>
         </div>
 
         {/* Quantity Selector */}

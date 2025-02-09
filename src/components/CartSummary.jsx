@@ -8,14 +8,14 @@ const CartSummary = ({ subtotal, itemsCount, savings, onCheckout }) => {
         <h4 className="text-gray-300 font-semibold text-lg">
           Subtotal ({itemsCount} {itemsCount === 1 ? "item" : "items"})
         </h4>
-        <p className="text-white text-3xl font-bold">${subtotal}</p>
+        <p className="text-white text-3xl font-bold">£{subtotal}</p>
         <p className="text-gray-400 mt-1">Taxes/VAT calculated at checkout</p>
       </div>
 
       {/* Savings Section */}
       <div className="mb-4">
         <p className="text-green-600 font-medium text-lg">
-          You save: <span className="text-green-500">${savings}</span>
+          You save: <span className="text-green-500">£{savings}</span>
         </p>
       </div>
 
