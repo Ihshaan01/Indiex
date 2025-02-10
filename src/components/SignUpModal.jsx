@@ -9,13 +9,15 @@ const SignUpModal = ({ visible, onClose }) => {
   const [loading, setLoading] = useState(false);
 
   const { setToken, setUser, setStore } = useAuthStore();
-  const handleSignUp = async () => {
+  const handleSignUp = async (e) => {
+    e.preventDefault();
     try {
       const response = await apiClient.post("/users/signup", {
         username,
         email,
         password,
       });
+      console.log(response.data);
       const { user, token, store } = response.data;
       // Update Zustand store with user and token
       setUser(user);
@@ -115,10 +117,10 @@ const SignUpModal = ({ visible, onClose }) => {
                       d="M4 12a8 8 0 018-8v8H4z"
                     ></path>
                   </svg>
-                  Signing in...
+                  Signing Up...
                 </span>
               ) : (
-                "Sign In"
+                "Sign Up"
               )}
             </button>
           </form>
