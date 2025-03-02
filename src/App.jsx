@@ -19,7 +19,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
-          <Route path="/DetailPage" element={<DetailPage />} />
+          <Route path="/DetailPage/:id" element={<DetailPage />} />
           <Route path="/Landing" element={<LandingPage />} />
           <Route path="/Cart" element={<Cart />} />
           <Route

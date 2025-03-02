@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
-const TabbedDetails = () => {
+const TabbedDetails = ({ description, keywords, store }) => {
   const [activeTab, setActiveTab] = useState("OverView");
   const [openedSection, setOpenedSection] = useState("Description");
 
@@ -13,21 +13,19 @@ const TabbedDetails = () => {
     <div className="max-w-4xl mx-auto p-4">
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
-        {["OverView", "Package Contents", "Publisher Info", "Reviews"].map(
-          (tab) => (
-            <button
-              key={tab}
-              className={`flex-1 text-center py-2 ${
-                activeTab === tab
-                  ? "border-b-2 border-blue-500 text-blue-500"
-                  : "text-gray-400"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          )
-        )}
+        {["OverView", "Publisher Info", "Reviews"].map((tab) => (
+          <button
+            key={tab}
+            className={`flex-1 text-center py-2 ${
+              activeTab === tab
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-400"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       {/* Content Sections */}
@@ -53,13 +51,7 @@ const TabbedDetails = () => {
                   : "max-h-0 opacity-0"
               }`}
             >
-              <p className="mt-2 text-gray-300">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore.
-              </p>
+              <p className="mt-2 text-gray-300">{description}</p>
             </div>
           </div>
 
@@ -108,23 +100,21 @@ const TabbedDetails = () => {
               }`}
             >
               <div className="mt-2 flex flex-wrap gap-2">
-                {Array(10)
-                  .fill("Reference Words")
-                  .map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full"
-                    >
-                      {keyword}
-                    </span>
-                  ))}
+                {keywords.map((keyword, index) => (
+                  <span
+                    key={index}
+                    className="bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-full"
+                  >
+                    {keyword}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {activeTab === "Package Contents" && (
+      {/* {activeTab === "Package Contents" && (
         <div className="mt-4">
           <h2 className="text-xl font-bold text-white">Package Contents</h2>
           <ul className="list-disc pl-5 mt-4 text-gray-300">
@@ -134,7 +124,7 @@ const TabbedDetails = () => {
             <li>1x Item 4</li>
           </ul>
         </div>
-      )}
+      )} */}
 
       {activeTab === "Publisher Info" && (
         <div className="mt-4">

@@ -208,7 +208,7 @@ const FAQPage = () => {
                   <motion.div
                     className="cursor-pointer flex items-center justify-between"
                     onClick={() => toggleFAQ(index)}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 0.97 }}
                   >
                     <p className="font-semibold text-xl">{faq.question}</p>
                     {openFAQIndex === index ? (

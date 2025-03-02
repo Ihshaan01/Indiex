@@ -5,101 +5,116 @@ import Card from "../components/Card";
 import Footer from "../components/Footer";
 import { DropDown } from "../components/DropDown";
 import { Link, useParams } from "react-router-dom";
+import {
+  cameraAssets,
+  CharacterPack,
+  SoundEffectBundle,
+  UIIconPack,
+} from "../assets";
 
 export default function Category() {
   const { categoryName, subCategoryName } = useParams();
   const [cards, setCards] = useState([
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Assets of Camera For Unity",
+      image: cameraAssets,
+      name: "Camera Assets",
       storeName: "DesignPro Studio",
       ratingAverage: 4.5,
-      totalrating: 50,
-      price: "30",
-      isGig: true,
+      totalRating: 50,
+      discount: 20,
+      price: 30,
+      type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Product Name",
-      storeName: "Studio Name",
-      ratingAverage: 4.2,
-      totalrating: 30,
-      price: "10.99",
-      isGig: false,
+      image: CharacterPack,
+      name: "3D Character Pack",
+      storeName: "GameDev Hub",
+      ratingAverage: 4.8,
+      totalRating: 75,
+      discount: 15,
+      price: 50,
+      type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Assets of Camera For Unity",
+      image: UIIconPack,
+      name: "UI Icon Pack",
+      storeName: "CreativePixels",
+      ratingAverage: 4.7,
+      totalRating: 90,
+      discount: 10,
+      price: 20,
+      type: "asset",
+    },
+    {
+      image: SoundEffectBundle,
+      name: "Sound Effects Bundle",
+      storeName: "AudioMasters",
+      ratingAverage: 4.6,
+      totalRating: 65,
+      discount: 5,
+      price: 15,
+      type: "asset",
+    },
+    {
+      image: cameraAssets,
+      name: "Camera Assets",
       storeName: "DesignPro Studio",
       ratingAverage: 4.5,
-      totalrating: 50,
-      price: "30",
-      isGig: true,
+      totalRating: 50,
+      discount: 20,
+      price: 30,
+      type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Product Name",
-      storeName: "Studio Name",
-      ratingAverage: 4.2,
-      totalrating: 30,
-      price: "10.99",
-      isGig: false,
+      image: CharacterPack,
+      name: "3D Character Pack",
+      storeName: "GameDev Hub",
+      ratingAverage: 4.8,
+      totalRating: 75,
+      discount: 15,
+      price: 50,
+      type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Assets of Camera For Unity",
+      image: UIIconPack,
+      name: "UI Icon Pack",
+      storeName: "CreativePixels",
+      ratingAverage: 4.7,
+      totalRating: 90,
+      discount: 10,
+      price: 20,
+      type: "asset",
+    },
+    {
+      image: SoundEffectBundle,
+      name: "Sound Effects Bundle",
+      storeName: "AudioMasters",
+      ratingAverage: 4.6,
+      totalRating: 65,
+      discount: 5,
+      price: 15,
+      type: "asset",
+    },
+    {
+      image: cameraAssets,
+      name: "Camera Assets",
       storeName: "DesignPro Studio",
       ratingAverage: 4.5,
-      totalrating: 50,
-      price: "30",
-      isGig: true,
+      totalRating: 50,
+      discount: 20,
+      price: 30,
+      type: "asset",
     },
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Product Name",
-      storeName: "Studio Name",
-      ratingAverage: 4.2,
-      totalrating: 30,
-      price: "10.99",
-      isGig: false,
+      image: CharacterPack,
+      name: "3D Character Pack",
+      storeName: "GameDev Hub",
+      ratingAverage: 4.8,
+      totalRating: 75,
+      discount: 15,
+      price: 50,
+      type: "asset",
     },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Assets of Camera For Unity",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      price: "30",
-      isGig: true,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Product Name",
-      storeName: "Studio Name",
-      ratingAverage: 4.2,
-      totalrating: 30,
-      price: "10.99",
-      isGig: false,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Assets of Camera For Unity",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      price: "30",
-      isGig: true,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Product Name",
-      storeName: "Studio Name",
-      ratingAverage: 4.2,
-      totalrating: 30,
-      price: "10.99",
-      isGig: false,
-    },
-    // Add more card data as needed
   ]);
 
   const categories = [
@@ -367,12 +382,12 @@ export default function Category() {
                 <Card
                   key={index}
                   image={card.image}
-                  gigName={card.gigName}
+                  Name={card.name}
                   storeName={card.storeName}
                   ratingAverage={card.ratingAverage}
-                  totalrating={card.totalrating}
+                  totalrating={card.totalRating}
                   price={card.price}
-                  isGig={card.isGig}
+                  type={card.type}
                 />
               ))}
             </div>

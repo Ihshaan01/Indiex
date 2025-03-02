@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import { Dialog, DialogTrigger, DialogContent } from "../components/Dialog";
@@ -21,123 +21,24 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import CreateAssetForm from "../components/CreateAssetForm";
-import CreateGigForm from "../components/CreateGigsForm";
+import CreateGigForm from "../components/CreateGigsForm"; // Assuming this is the correct import
 import CreateGamesForm from "../components/CreateGamesForm";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
+import StoreSettingsForm from "../components/StoreSettingsForm";
+import Section from "../components/Section";
+import ViewAllDialog from "../components/ViewAllDialog";
+
 const Dashboard = () => {
   const { user, store, setStore } = useAuthStore();
-  const [assets, setAssets] = useState([
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-  ]);
-  const [gigs, setGigs] = useState([
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      isGig: true,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      isGig: true,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      isGig: true,
-      price: 30,
-    },
-
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      isGig: true,
-      price: 30,
-    },
-  ]);
+  const [assets, setAssets] = useState([]);
+  const [gigs, setGigs] = useState([]); // Initialized as empty array to be populated by API
   const [games, setGames] = useState([
+    // Keeping static games data as a fallback or until you implement games API
     {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-
-    {
-      image: "https://via.placeholder.com/150",
-      gigName: "Camera Assets",
-      storeName: "DesignPro Studio",
+      images: ["https://via.placeholder.com/150"],
+      productName: "Camera Assets",
+      store: { name: "DesignPro Studio" },
       ratingAverage: 4.5,
       totalrating: 50,
       discount: 20,
@@ -160,6 +61,7 @@ const Dashboard = () => {
   const [showAllAssets, setShowAllAssets] = useState(false);
   const [showAllGigs, setShowAllGigs] = useState(false);
   const [showAllGames, setShowAllGames] = useState(false);
+
   const salesData = [
     { name: "Jan", sales: 4000 },
     { name: "Feb", sales: 3000 },
@@ -179,6 +81,7 @@ const Dashboard = () => {
     { name: "Active Users", value: 400 },
     { name: "Inactive Users", value: 300 },
   ];
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Store settings updated:", storeSettings);
@@ -188,7 +91,6 @@ const Dashboard = () => {
 
   const handleCreateStore = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("userId", user.id);
     formData.append("name", storeSettings.name);
@@ -210,9 +112,8 @@ const Dashboard = () => {
       });
       console.log(response);
 
-      if (response.status == 201) {
+      if (response.status === 201) {
         console.log(response.data);
-
         setMessage(response.data.message);
         setStoreSettings(response.data.store);
         setStorePreview(response.data.store.image);
@@ -229,7 +130,6 @@ const Dashboard = () => {
 
   const handleEditStore = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("storeId", store._id);
     formData.append("name", storeSettings.name);
@@ -242,7 +142,7 @@ const Dashboard = () => {
       const response = await apiClient.put("/users/update-store", formData);
       console.log(response);
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         setMessage(response.data.message);
         setStoreSettings(response.data.store);
         setStore(response.data.store);
@@ -256,10 +156,48 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  const fetchAssetsByStoreId = async (storeId) => {
+    try {
+      const response = await apiClient.get(
+        `/users/get-stores-assets/${storeId}`
+      );
+      if (response.status === 200) {
+        console.log("Assets:", response.data.assets);
+        setAssets(response.data.assets); // Update assets state
+      } else {
+        console.error("Failed to fetch assets:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching assets:", error);
+    }
+  };
+
+  const fetchGigsByStoreId = async (storeId) => {
+    try {
+      const response = await apiClient.get(`/users/get-stores-gigs/${storeId}`);
+      if (response.status === 200) {
+        console.log("Gigs:", response.data.gigs);
+        setGigs(response.data.gigs); // Update gigs state
+      } else {
+        console.error("Failed to fetch gigs:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching gigs:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (store?._id) {
+      fetchAssetsByStoreId(store._id);
+      fetchGigsByStoreId(store._id); // Fetch gigs when store ID is available
+    }
+  }, [store?._id]);
+
   return (
     <>
       <Header />
-      <div className="flex  bg-gray-900 text-white border-t-2 border-gray-800 ">
+      <div className="flex bg-gray-900 text-white border-t-2 border-gray-800">
         {/* Sidebar */}
         <aside className="w-64 bg-gray-800 p-4">
           <div className="flex items-center space-x-2 mb-6">
@@ -273,7 +211,6 @@ const Dashboard = () => {
               <span className="mr-2">📊</span>
               Dashboard
             </a>
-
             <a
               href="#assets"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
@@ -306,7 +243,7 @@ const Dashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6  example">
+        <main className="flex-1 p-6 example">
           <section id="dashboard" className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -381,185 +318,65 @@ const Dashboard = () => {
           </section>
 
           {/* Assets Section */}
-          <section id="assets" className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Assets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {assets.slice(0, 5).map((asset, index) => (
-                <Card key={index} {...asset} />
-              ))}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-              <Button onClick={() => setShowAllAssets(true)}>View All</Button>
-              <Button onClick={() => setShowCreateAsset(true)}>
-                Create New Asset
-              </Button>
-            </div>
-          </section>
-          <section id="gigs" className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Gigs</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {gigs.slice(0, 5).map((asset, index) => (
-                <Card key={index} {...asset} />
-              ))}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-              <Button onClick={() => setShowAllAssets(true)}>View All</Button>
-              <Button onClick={() => setShowCreateGigs(true)}>
-                Create New Gigs
-              </Button>
-            </div>
-          </section>
-          <section id="games" className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Games</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {games.slice(0, 5).map((asset, index) => (
-                <Card key={index} {...asset} />
-              ))}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-              <Button onClick={() => setShowAllAssets(true)}>View All</Button>
-              <Button onClick={() => setShowCreateGames(true)}>
-                Add New Games
-              </Button>
-            </div>
-          </section>
+          <Section
+            title="Assets"
+            items={assets}
+            onCreate={() => setShowCreateAsset(true)}
+            onViewAll={() => setShowAllAssets(true)}
+            id="assets"
+          />
+
+          {/* Gigs Section */}
+          <Section
+            title="Gigs"
+            items={gigs}
+            onCreate={() => setShowCreateGigs(true)}
+            onViewAll={() => setShowAllGigs(true)}
+            id="gigs"
+          />
+
+          {/* Games Section */}
+          <Section
+            title="Games"
+            items={games}
+            onCreate={() => setShowCreateGames(true)}
+            onViewAll={() => setShowAllGames(true)}
+            id="games"
+          />
+
           <section id="store-settings" className="mb-12">
             <div className="min-h-screen bg-gray-800 text-white p-8">
               <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold mb-8">Store Settings</h1>
-
-                <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
-                  <form onSubmit={store ? handleEditStore : handleCreateStore}>
-                    <div className="space-y-6">
-                      {/* Store Image */}
-                      <div>
-                        <label className="text-gray-400">Store Image</label>
-
-                        {storePreview && (
-                          <img
-                            src={storePreview}
-                            alt="Store Preview"
-                            className="mt-4 w-24 h-24 rounded-lg object-cover"
-                          />
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                setStoreSettings((prev) => ({
-                                  ...prev,
-                                  image: file,
-                                }));
-                              };
-                              reader.readAsDataURL(file);
-                              setStorePreview(URL.createObjectURL(file));
-                            }
-                          }}
-                          className="w-full p-2 bg-gray-600 rounded-lg mt-2"
-                          required
-                        />
-                      </div>
-
-                      {/* Store Name */}
-                      <div>
-                        <label className="text-gray-400">Store Name</label>
-                        <input
-                          type="text"
-                          value={storeSettings.name}
-                          onChange={(e) =>
-                            setStoreSettings((prev) => ({
-                              ...prev,
-                              name: e.target.value,
-                            }))
-                          }
-                          className="w-full p-2 bg-gray-600 rounded-lg mt-2"
-                          placeholder="Enter store name"
-                          required
-                        />
-                      </div>
-
-                      {/* Store Description */}
-                      <div>
-                        <label className="text-gray-400">
-                          Store Description
-                        </label>
-                        <textarea
-                          value={storeSettings.description}
-                          onChange={(e) =>
-                            setStoreSettings((prev) => ({
-                              ...prev,
-                              description: e.target.value,
-                            }))
-                          }
-                          className="w-full p-2 bg-gray-600 rounded-lg mt-2"
-                          placeholder="Enter store description"
-                          rows={4}
-                          required
-                        />
-                      </div>
-
-                      {/* Save Button */}
-                      <div className="mt-6">
-                        <button
-                          type="submit"
-                          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          {loading ? (
-                            <span className="flex items-center">
-                              <svg
-                                className="animate-spin h-5 w-5 mr-2 text-white"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8v8H4z"
-                                ></path>
-                              </svg>
-                              Saving Changes...
-                            </span>
-                          ) : (
-                            "Save Changes"
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
+                <StoreSettingsForm
+                  store={store}
+                  onSubmit={store ? handleEditStore : handleCreateStore}
+                  loading={loading}
+                />
               </div>
             </div>
           </section>
+
           {/* Dialogs */}
-          <Dialog
+          <ViewAllDialog
             open={showAllAssets}
-            onOpenChange={setShowAllAssets}
             onClose={() => setShowAllAssets(false)}
-          >
-            <DialogContent className="bg-gray-800 rounded-lg p-6 backdrop-blur-sm overflow-auto  ">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-black">All Assets</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-3">
-                {assets.map((asset, index) => (
-                  <Card key={index} {...asset} />
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog>
+            title="Assets"
+            items={assets}
+          />
+          <ViewAllDialog
+            open={showAllGigs}
+            onClose={() => setShowAllGigs(false)}
+            title="Gigs"
+            items={gigs}
+          />
+          <ViewAllDialog
+            open={showAllGames}
+            onClose={() => setShowAllGames(false)}
+            title="Games"
+            items={games}
+          />
+
           <CreateAssetForm
             val={showCreateAsset}
             onOpen={() => setShowCreateAsset(true)}

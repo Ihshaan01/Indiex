@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import HeroBanner from "../components/HeroBanner";
 import Card from "../components/Card";
@@ -18,195 +18,114 @@ import {
   UIIconPack,
   VoiceoverServices,
 } from "../assets";
+import axios from "axios"; // Import axios for API calls
+import apiClient from "../middleware/apiMiddleware";
 
 export default function Home() {
-  const CardData = [
-    {
-      image: cameraAssets,
-      name: "Camera Assets",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalRating: 50,
-      discount: 20,
-      price: 30,
-      type: "asset",
-    },
-    {
-      image: CharacterPack,
-      name: "3D Character Pack",
-      storeName: "GameDev Hub",
-      ratingAverage: 4.8,
-      totalRating: 75,
-      discount: 15,
-      price: 50,
-      type: "asset",
-    },
-    {
-      image: UIIconPack,
-      name: "UI Icon Pack",
-      storeName: "CreativePixels",
-      ratingAverage: 4.7,
-      totalRating: 90,
-      discount: 10,
-      price: 20,
-      type: "asset",
-    },
-    {
-      image: SoundEffectBundle,
-      name: "Sound Effects Bundle",
-      storeName: "AudioMasters",
-      ratingAverage: 4.6,
-      totalRating: 65,
-      discount: 5,
-      price: 15,
-      type: "asset",
-    },
-  ];
+  const [assets, setAssets] = useState([]); // State to store assets data
+  const [loading, setLoading] = useState(true); // State to handle loading
+  const [error, setError] = useState(null); // State to handle errors
+  const [gigs, setGigs] = useState([]);
+  // Fetch assets data from the API
+  useEffect(() => {
+    const fetchAssets = async () => {
+      try {
+        const response = await apiClient.get("/users/assets"); // Call the API
+        setAssets(response.data.assets); // Set the fetched assets data
+      } catch (error) {
+        setError("Failed to fetch assets. Please try again later."); // Handle errors
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+    const fetchGigs = async () => {
+      try {
+        const response = await apiClient.get("/users/gigs"); // Call the API
+        setGigs(response.data.gigs); // Set the fetched assets data
+      } catch (error) {
+        setError("Failed to fetch assets. Please try again later."); // Handle errors
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
 
-  const GigsData = [
-    {
-      image: ProfessionalLogoDesigns,
-      name: "Professional Logo Designs",
-      storeName: "DesignPro Studio",
-      ratingAverage: 4.5,
-      totalRating: 50,
-      type: "gig",
-      price: 30,
-    },
-    {
-      image: MobileAppDevelopment,
-      name: "Mobile App Development",
-      storeName: "Tech Innovators",
-      ratingAverage: 4.8,
-      totalRating: 80,
-      type: "gig",
-      price: 100,
-    },
-    {
-      image: VoiceoverServices,
-      name: "Voiceover Services",
-      storeName: "VoiceMasters",
-      ratingAverage: 4.7,
-      totalRating: 70,
-      type: "gig",
-      price: 50,
-    },
-    {
-      image: CustomWebsiteDesign,
-      name: "Custom Website Design",
-      storeName: "WebCreators",
-      ratingAverage: 4.6,
-      totalRating: 60,
-      type: "gig",
-      price: 150,
-    },
-  ];
+    fetchAssets();
+    fetchGigs();
+  }, []);
 
   const GamesData = [
     {
-      image: FantasyAdventure,
-      name: "Fantasy Adventure",
-      storeName: "EpicGames Studio",
+      images: ["https://via.placeholder.com/150"],
+      productName: "Camera Assets",
+      store: { name: "DesignPro Studio" },
       ratingAverage: 4.5,
-      totalRating: 120,
-      type: "game",
-      price: 25,
-    },
-    {
-      image: FPSBattleRoyale,
-      name: "FPS Battle Royale",
-      storeName: "Warzone Studios",
-      ratingAverage: 4.7,
-      totalRating: 200,
-      type: "game",
-      price: 40,
-    },
-    {
-      image: ExtremeRacing,
-      name: "Extreme Racing",
-      storeName: "SpeedWay Games",
-      ratingAverage: 4.6,
-      totalRating: 180,
-      type: "game",
-      price: 35,
-    },
-    {
-      image: MindBenderPuzzle,
-      name: "Mind Bender Puzzle",
-      storeName: "BrainTeasers Inc.",
-      ratingAverage: 4.8,
-      totalRating: 90,
-      type: "game",
-      price: 15,
+      totalrating: 50,
+      discount: 20,
+      price: 30,
     },
   ];
+
+  // Render loading state
+  if (loading) {
+    return <div className="text-white text-center">Loading assets...</div>;
+  }
+
+  // Render error state
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
 
   return (
     <div>
       <Header />
       <HeroBanner />
 
+      {/* Top Freelancers Section */}
       <div>
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
-          {" "}
           Top FreeLancers
         </h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {GigsData.map((card, index) => (
-            <Link key={index} to="/DetailPage">
-              <Card
-                key={index}
-                image={card.image}
-                Name={card.name}
-                storeName={card.storeName}
-                ratingAverage={card.ratingAverage}
-                totalrating={card.totalRating}
-                price={card.price}
-                type={card.type}
-              />
+          {gigs.slice(0, 4).map((gig, index) => (
+            <Link key={index} to={`/DetailPage/${gig._id}`} state={gig.type}>
+              <Card item={gig} />
             </Link>
           ))}
         </div>
       </div>
+
+      {/* Top Assets Section */}
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
-          {" "}
-          Top Assets
-        </h3>
+        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">Top Assets</h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {CardData.map((card, index) => (
-            <Card
+          {assets.slice(0, 4).map((asset, index) => (
+            <Link
               key={index}
-              image={card.image}
-              Name={card.name}
-              storeName={card.storeName}
-              ratingAverage={card.ratingAverage}
-              totalrating={card.totalRating}
-              discount={card.discount}
-              price={card.price}
-              type={card.type}
-            />
+              to={`/DetailPage/${asset._id}`}
+              state={asset.type}
+            >
+              <Card item={asset} />
+            </Link>
           ))}
         </div>
       </div>
+
+      {/* Top Games Section */}
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10 text-white"> Top Games</h3>
+        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">Top Games</h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {GamesData.map((card, index) => (
-            <Card
+          {GamesData.map((game, index) => (
+            <Link
               key={index}
-              image={card.image}
-              Name={card.name}
-              storeName={card.storeName}
-              ratingAverage={card.ratingAverage}
-              totalrating={card.totalRating}
-              discount={card.discount}
-              price={card.price}
-              type={card.type}
-            />
+              to={`/DetailPage/${game._id || index}`}
+              state={game.type || index}
+            >
+              <Card item={game} />
+            </Link>
           ))}
         </div>
       </div>
+
       <Footer />
     </div>
   );

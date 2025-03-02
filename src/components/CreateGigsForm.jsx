@@ -1,49 +1,89 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "./Dialog";
-
+import apiClient from "../middleware/apiMiddleware";
+import useAuthStore from "../store/authStore";
 function CreateGigForm({ val, onOpen, onClose }) {
   const [storeSettings, setStoreSettings] = useState({
-    images: [], // List of images (array of URLs)
-    youtubeLink: "", // YouTube video link
-    productName: "", // Product name
-    description: "", // Description
-    packages: [{ amount: "", services: "" }], // Packages Offered (array of objects)
-    keywords: "", // Keywords (comma-separated)
+    category: "",
+    youtubeLink: "",
+    productName: "",
+    description: "",
+    packages: [
+      { name: "Basic", price: "", services: "" },
+      { name: "Standard", price: "", services: "" },
+      { name: "Premium", price: "", services: "" },
+    ],
+    keywords: "",
   });
 
+  const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const { store } = useAuthStore();
+  const categories = [
+    "Graphics & Design",
+    "Programming & Tech",
+    "Digital Marketing",
+    "Music & Audio",
+    "Video & Animation",
+    "Writing & Translation",
+    "Photography",
+    "Consulting",
+  ];
 
   const validateForm = () => {
     const newErrors = {};
-    if (storeSettings.images.length === 0)
+    if (images.length === 0)
       newErrors.images = "At least one image is required";
+    if (!storeSettings.category) newErrors.category = "Category is required";
     if (!storeSettings.youtubeLink)
       newErrors.youtubeLink = "YouTube video link is required";
     if (!storeSettings.productName)
       newErrors.productName = "Gig name is required";
     if (!storeSettings.description)
       newErrors.description = "Description is required";
-    if (storeSettings.packages.some((pkg) => !pkg.amount || !pkg.services))
-      newErrors.packages = "All packages must have an amount and services";
+    if (storeSettings.packages.some((pkg) => !pkg.price || !pkg.services))
+      newErrors.packages = "All packages must have a price and services";
     if (!storeSettings.keywords) newErrors.keywords = "Keywords are required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
-    console.log("Created new gig with:", storeSettings);
-    onClose(); // Close the dialog after submission
+    const formData = new FormData();
+    formData.append("storeId", store._id); // Replace with actual store ID
+    formData.append("type", "Gig");
+    formData.append("category", storeSettings.category);
+    formData.append("youtubeLink", storeSettings.youtubeLink);
+    formData.append("productName", storeSettings.productName);
+    formData.append("description", storeSettings.description);
+    formData.append("packages", JSON.stringify(storeSettings.packages));
+    formData.append("keywords", storeSettings.keywords);
+    images.forEach((image) => formData.append("images", image));
+
+    try {
+      const response = await apiClient.post("/users/create-gig", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("Gig created:", response.data.gig);
+      onClose();
+    } catch (error) {
+      console.error("Error creating gig:", error);
+    }
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
-    setStoreSettings({ ...storeSettings, images: imageUrls });
+    if (files.length > 0) {
+      setImages((prevImages) => [...prevImages, ...files]);
+    }
+  };
+
+  const removeImage = (index) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
   const handlePackageChange = (index, field, value) => {
@@ -52,79 +92,58 @@ function CreateGigForm({ val, onOpen, onClose }) {
     setStoreSettings({ ...storeSettings, packages: newPackages });
   };
 
-  const addPackage = () => {
-    setStoreSettings({
-      ...storeSettings,
-      packages: [...storeSettings.packages, { amount: "", services: "" }],
-    });
-  };
-
-  const removePackage = (index) => {
-    const newPackages = storeSettings.packages.filter((_, i) => i !== index);
-    setStoreSettings({ ...storeSettings, packages: newPackages });
-  };
-
   return (
     <Dialog open={val} onOpenChange={onOpen} onClose={onClose}>
-      <DialogContent>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">Create New Gig</h3>
+      <DialogContent className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">
+        <div className="mb-8">
+          <h3 className="text-3xl font-semibold text-gray-900">
+            Create New Gig
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Fill out the details to create your gig.
+          </p>
         </div>
 
-        <form onSubmit={handleCreate} className="space-y-6">
+        <form onSubmit={handleCreate} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* List of Images */}
+            {/* Image Upload */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                List of Images
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Images (Multiple)
               </label>
               <input
                 type="file"
+                accept="image/*"
                 multiple
                 onChange={handleImageChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
               />
               {errors.images && (
-                <p className="text-red-500 text-sm mt-1">{errors.images}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.images}</p>
               )}
-              <div className="mt-2 flex flex-wrap gap-2">
-                {storeSettings.images.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Preview ${index + 1}`}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+              <div className="mt-4 grid grid-cols-3 gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg shadow-md transition duration-200 ease-in-out transform group-hover:scale-105"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition duration-150 ease-in-out"
+                    >
+                      ×
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* YouTube Video Link */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                YouTube Video Link
-              </label>
-              <input
-                type="url"
-                value={storeSettings.youtubeLink}
-                onChange={(e) =>
-                  setStoreSettings({
-                    ...storeSettings,
-                    youtubeLink: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-              />
-              {errors.youtubeLink && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.youtubeLink}
-                </p>
-              )}
-            </div>
-
             {/* Product Name */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Gig Name
               </label>
               <input
@@ -136,18 +155,68 @@ function CreateGigForm({ val, onOpen, onClose }) {
                     productName: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
               />
               {errors.productName && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.productName}
+                </p>
+              )}
+            </div>
+
+            {/* Category Dropdown */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category
+              </label>
+              <select
+                value={storeSettings.category}
+                onChange={(e) =>
+                  setStoreSettings({
+                    ...storeSettings,
+                    category: e.target.value,
+                  })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              {errors.category && (
+                <p className="text-red-500 text-xs mt-1">{errors.category}</p>
+              )}
+            </div>
+
+            {/* YouTube Video Link */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                YouTube Video Link
+              </label>
+              <input
+                type="url"
+                value={storeSettings.youtubeLink}
+                onChange={(e) =>
+                  setStoreSettings({
+                    ...storeSettings,
+                    youtubeLink: e.target.value,
+                  })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
+              />
+              {errors.youtubeLink && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.youtubeLink}
                 </p>
               )}
             </div>
 
             {/* Description */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
@@ -158,11 +227,11 @@ function CreateGigForm({ val, onOpen, onClose }) {
                     description: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
                 rows="4"
               />
               {errors.description && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.description}
                 </p>
               )}
@@ -170,55 +239,47 @@ function CreateGigForm({ val, onOpen, onClose }) {
 
             {/* Packages Offered */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Packages Offered
               </label>
-              {storeSettings.packages.map((pkg, index) => (
-                <div key={index} className="mb-4 space-y-2">
-                  <div className="flex gap-2">
+              <div className="space-y-4">
+                {storeSettings.packages.map((pkg, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 bg-gray-50 p-4 rounded-lg shadow-sm"
+                  >
+                    <span className="w-1/4 text-gray-800 font-semibold">
+                      {pkg.name}
+                    </span>
                     <input
                       type="number"
-                      placeholder="Amount"
-                      value={pkg.amount}
+                      placeholder="Price"
+                      value={pkg.price}
                       onChange={(e) =>
-                        handlePackageChange(index, "amount", e.target.value)
+                        handlePackageChange(index, "price", e.target.value)
                       }
-                      className="w-1/2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                      className="w-1/3 p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
                     />
                     <input
                       type="text"
-                      placeholder="Services"
+                      placeholder="Services (e.g., 'Logo design, 2 revisions')"
                       value={pkg.services}
                       onChange={(e) =>
                         handlePackageChange(index, "services", e.target.value)
                       }
-                      className="w-1/2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                      className="w-1/2 p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
                     />
-                    <button
-                      type="button"
-                      onClick={() => removePackage(index)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors"
-                    >
-                      Remove
-                    </button>
                   </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addPackage}
-                className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Add Package
-              </button>
+                ))}
+              </div>
               {errors.packages && (
-                <p className="text-red-500 text-sm mt-1">{errors.packages}</p>
+                <p className="text-red-500 text-xs mt-2">{errors.packages}</p>
               )}
             </div>
 
             {/* Keywords */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Keywords (comma separated)
               </label>
               <input
@@ -230,10 +291,11 @@ function CreateGigForm({ val, onOpen, onClose }) {
                     keywords: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 transition duration-150 ease-in-out"
+                placeholder="e.g., design, tech, marketing"
               />
               {errors.keywords && (
-                <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>
+                <p className="text-red-500 text-xs mt-1">{errors.keywords}</p>
               )}
             </div>
           </div>
@@ -241,7 +303,7 @@ function CreateGigForm({ val, onOpen, onClose }) {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 shadow-md transition duration-150 ease-in-out"
             >
               Create New Gig
             </button>
