@@ -43,23 +43,6 @@ const CartItem = ({ item, onRemove, onQuantityChange }) => {
           <p className="text-red-500 font-bold text-lg">£{discountedPrice}</p>
           <p className="text-gray-400 line-through">£{price}</p>
         </div>
-
-        {/* Quantity Selector */}
-        <div className="flex items-center gap-2">
-          <label
-            htmlFor="quantity"
-            className="text-gray-400 text-sm font-semibold"
-          >
-            Quantity
-          </label>
-          <DropDown
-            buttonLabel="1"
-            items={[{ val: "1" }, { val: "2" }]}
-            onSelect={(val) => {
-              onQuantityChange(val);
-            }}
-          />
-        </div>
       </div>
     </div>
   );
