@@ -13,6 +13,7 @@ import SliderCarasoul from "../components/SliderCarasoul";
 import TabbedDetails from "../components/TabbedDetail";
 import Tabs, { TabList, TabTrigger, TabContent } from "../components/Tabs"; // Assuming you have a Tabs component
 import apiClient from "../middleware/apiMiddleware";
+import useAuthStore from "../store/authStore";
 
 function DetailPage() {
   const { id } = useParams(); // Get the ID from the URL
@@ -20,7 +21,8 @@ function DetailPage() {
   const [item, setItem] = useState(null); // State to store item details (asset or gig)
   const [loading, setLoading] = useState(true); // State to handle loading
   const [error, setError] = useState(null); // State to handle errors
-
+  const { user } = useAuthStore();
+  console.log("User", user);
   const type = location.state;
   // Fetch item details based on type
   useEffect(() => {
@@ -49,7 +51,28 @@ function DetailPage() {
 
     fetchItemDetails();
   }, [id, type]);
+  const handleAddToCart = async () => {
+    if (!user) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
 
+    try {
+      const response = await apiClient.post("/users/add-to-cart", {
+        userId: user.id, // Assuming user.id exists in auth store
+        itemId: id,
+        type: type,
+        quantity: 1, // Default quantity; adjust if needed
+      });
+      console.log("Added to cart:", response.data);
+      alert("Item added to cart successfully!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to add item to cart.";
+      alert(errorMessage);
+    }
+  };
   // Hardcoded data for "You Might Also Like" and "More from same store" sections
   const CardData = [
     {
@@ -197,7 +220,10 @@ function DetailPage() {
                 Contact Freelancer
               </button>
             ) : (
-              <button className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold text-lg rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-md">
+              <button
+                onClick={handleAddToCart}
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold text-lg rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+              >
                 Add to Cart
               </button>
             )}
