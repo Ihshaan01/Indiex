@@ -3,7 +3,7 @@ import useAuthStore from "../store/authStore";
 
 // Axios instance with middleware
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api", // Replace with your backend URL
+  baseURL: "https://backend-main-zeta.vercel.app/api", // Replace with your backend URL
 });
 // "https://backend-main-zeta.vercel.app/api"
 // "http://localhost:5000/api"
