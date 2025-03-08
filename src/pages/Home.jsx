@@ -4,70 +4,53 @@ import HeroBanner from "../components/HeroBanner";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
-import {
-  cameraAssets,
-  CharacterPack,
-  CustomWebsiteDesign,
-  ExtremeRacing,
-  FantasyAdventure,
-  FPSBattleRoyale,
-  MindBenderPuzzle,
-  MobileAppDevelopment,
-  ProfessionalLogoDesigns,
-  SoundEffectBundle,
-  UIIconPack,
-  VoiceoverServices,
-} from "../assets";
-import axios from "axios"; // Import axios for API calls
 import apiClient from "../middleware/apiMiddleware";
 
 export default function Home() {
   const [assets, setAssets] = useState([]); // State to store assets data
+  const [gigs, setGigs] = useState([]); // State to store gigs data
+  const [games, setGames] = useState([]); // State to store games data
   const [loading, setLoading] = useState(true); // State to handle loading
   const [error, setError] = useState(null); // State to handle errors
-  const [gigs, setGigs] = useState([]);
-  // Fetch assets data from the API
+
+  // Fetch data from APIs
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await apiClient.get("/users/assets"); // Call the API
-        setAssets(response.data.assets); // Set the fetched assets data
+        const response = await apiClient.get("/users/assets");
+        setAssets(response.data.assets);
       } catch (error) {
-        setError("Failed to fetch assets. Please try again later."); // Handle errors
-      } finally {
-        setLoading(false); // Stop loading
+        setError("Failed to fetch assets. Please try again later.");
       }
     };
+
     const fetchGigs = async () => {
       try {
-        const response = await apiClient.get("/users/gigs"); // Call the API
-        setGigs(response.data.gigs); // Set the fetched assets data
+        const response = await apiClient.get("/users/gigs");
+        setGigs(response.data.gigs);
       } catch (error) {
-        setError("Failed to fetch assets. Please try again later."); // Handle errors
-      } finally {
-        setLoading(false); // Stop loading
+        setError("Failed to fetch gigs. Please try again later.");
       }
     };
 
-    fetchAssets();
-    fetchGigs();
-  }, []);
+    const fetchGames = async () => {
+      try {
+        const response = await apiClient.get("/users/games"); // Call the getAllGames API
+        setGames(response.data.games); // Set the fetched games data
+      } catch (error) {
+        setError("Failed to fetch games. Please try again later.");
+      }
+    };
 
-  const GamesData = [
-    {
-      images: ["https://via.placeholder.com/150"],
-      productName: "Camera Assets",
-      store: { name: "DesignPro Studio" },
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-  ];
+    // Fetch all data concurrently and set loading to false when all are done
+    Promise.all([fetchAssets(), fetchGigs(), fetchGames()])
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false)); // Ensure loading stops even if there's an error
+  }, []);
 
   // Render loading state
   if (loading) {
-    return <div className="text-white text-center">Loading assets...</div>;
+    return <div className="text-white text-center">Loading content...</div>;
   }
 
   // Render error state
@@ -83,7 +66,7 @@ export default function Home() {
       {/* Top Freelancers Section */}
       <div>
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
-          Top FreeLancers
+          Top Freelancers
         </h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
           {gigs.slice(0, 4).map((gig, index) => (
@@ -114,12 +97,8 @@ export default function Home() {
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">Top Games</h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {GamesData.map((game, index) => (
-            <Link
-              key={index}
-              to={`/DetailPage/${game._id || index}`}
-              state={game.type || index}
-            >
+          {games.slice(0, 4).map((game, index) => (
+            <Link key={index} to={`/DetailPage/${game._id}`} state={game.type}>
               <Card item={game} />
             </Link>
           ))}

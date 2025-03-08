@@ -32,19 +32,8 @@ import ViewAllDialog from "../components/ViewAllDialog";
 const Dashboard = () => {
   const { user, store, setStore } = useAuthStore();
   const [assets, setAssets] = useState([]);
-  const [gigs, setGigs] = useState([]); // Initialized as empty array to be populated by API
-  const [games, setGames] = useState([
-    // Keeping static games data as a fallback or until you implement games API
-    {
-      images: ["https://via.placeholder.com/150"],
-      productName: "Camera Assets",
-      store: { name: "DesignPro Studio" },
-      ratingAverage: 4.5,
-      totalrating: 50,
-      discount: 20,
-      price: 30,
-    },
-  ]);
+  const [gigs, setGigs] = useState([]);
+  const [games, setGames] = useState([]); // Initialize as empty array to be populated by API
   const [showCreateAsset, setShowCreateAsset] = useState(false);
   const [showCreateGigs, setShowCreateGigs] = useState(false);
   const [showCreateGames, setShowCreateGames] = useState(false);
@@ -164,7 +153,7 @@ const Dashboard = () => {
       );
       if (response.status === 200) {
         console.log("Assets:", response.data.assets);
-        setAssets(response.data.assets); // Update assets state
+        setAssets(response.data.assets);
       } else {
         console.error("Failed to fetch assets:", response.data.message);
       }
@@ -178,7 +167,7 @@ const Dashboard = () => {
       const response = await apiClient.get(`/users/get-stores-gigs/${storeId}`);
       if (response.status === 200) {
         console.log("Gigs:", response.data.gigs);
-        setGigs(response.data.gigs); // Update gigs state
+        setGigs(response.data.gigs);
       } else {
         console.error("Failed to fetch gigs:", response.data.message);
       }
@@ -187,10 +176,27 @@ const Dashboard = () => {
     }
   };
 
+  const fetchGamesByStoreId = async (storeId) => {
+    try {
+      const response = await apiClient.get(
+        `/users/get-stores-games/${storeId}`
+      );
+      if (response.status === 200) {
+        console.log("Games:", response.data.games);
+        setGames(response.data.games); // Update games state
+      } else {
+        console.error("Failed to fetch games:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    }
+  };
+
   useEffect(() => {
     if (store?._id) {
       fetchAssetsByStoreId(store._id);
-      fetchGigsByStoreId(store._id); // Fetch gigs when store ID is available
+      fetchGigsByStoreId(store._id);
+      fetchGamesByStoreId(store._id); // Fetch games when store ID is available
     }
   }, [store?._id]);
 
