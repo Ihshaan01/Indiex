@@ -17,6 +17,7 @@ const Header = () => {
   const [signInModalVisible, setSignInModalVisible] = useState(false);
   const [userModalVisible, setUserModalVisible] = useState(false);
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { token, user, setUser, clearToken } = useAuthStore();
 
   const categories = [
@@ -127,14 +128,23 @@ const Header = () => {
           </Link>
           <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
             <div className="flex items-center gap-4">
-              <button
-                className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
-                data-tooltip-id="Search"
-                data-tooltip-content="Search"
-                aria-label="Search"
-              >
-                <CiSearch />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  className="p-2 rounded-full hover:bg-gray-700"
+                >
+                  <CiSearch />
+                </button>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className={`absolute right-0 top-12 w-64 p-2 bg-gray-800 text-white rounded-md shadow-lg transition-all duration-300 ${
+                    searchOpen
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 -translate-y-2 pointer-events-none"
+                  }`}
+                />
+              </div>
               <Link
                 to="/Cart"
                 className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
