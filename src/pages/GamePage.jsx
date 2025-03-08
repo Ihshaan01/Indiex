@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import JSZip from "jszip";
+import pako from "pako"; // Import pako for gzip decompression
 
 function GamePage() {
   const unityCanvasRef = useRef(null);
@@ -11,77 +13,120 @@ function GamePage() {
   const [gameStarted, setGameStarted] = useState(false);
   const location = useLocation();
 
-  const loadUnityGame = () => {
+  const loadUnityGameFromZip = async () => {
     setLoading(true);
-    const script = document.createElement("script");
-    script.src = "/assets/unity/Build/TestBuilds.loader.js";
-    script.async = true;
+    try {
+      // Step 1: Fetch the ZIP file from Cloudinary
+      const zipUrl =
+        "https://res.cloudinary.com/dxlr5sh9k/raw/upload/v1741435180/WordSlotWebGLTestBuild_e6pq3n.zip";
+      const response = await fetch(zipUrl, { mode: "cors" });
+      if (!response.ok) throw new Error("Failed to fetch ZIP file");
 
-    script.onload = () => {
-      if (window.createUnityInstance) {
-        createUnityInstance(unityCanvasRef.current, {
-          dataUrl: "/assets/unity/Build/TestBuilds.data.gz",
-          frameworkUrl: "/assets/unity/Build/TestBuilds.framework.js.gz",
-          codeUrl: "/assets/unity/Build/TestBuilds.wasm.gz",
-          id: "unity-canvas",
+      const zipData = await response.arrayBuffer();
+
+      // Step 2: Extract the ZIP contents using JSZip
+      const zip = new JSZip();
+      const extracted = await zip.loadAsync(zipData);
+
+      // Step 3: Extract required Unity files
+      const files = {};
+      await Promise.all(
+        Object.keys(extracted.files).map(async (filename) => {
+          if (
+            filename.endsWith(".loader.js") ||
+            filename.endsWith(".data.gz") ||
+            filename.endsWith(".framework.js.gz") ||
+            filename.endsWith(".wasm.gz")
+          ) {
+            const blob = await extracted.file(filename).async("blob");
+            if (filename.endsWith(".gz")) {
+              // Decompress .gz files using pako
+              const arrayBuffer = await blob.arrayBuffer();
+              const decompressed = pako.inflate(new Uint8Array(arrayBuffer));
+              files[filename.replace(".gz", "")] = new Blob([decompressed]);
+            } else {
+              files[filename] = blob;
+            }
+            console.log(`Processed ${filename}`);
+          }
         })
-          .then((instance) => {
-            console.log("Unity game loaded successfully:", instance);
-            unityInstanceRef.current = instance;
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.error("Error loading Unity game:", err);
-            setError("Failed to load the game: " + err.message);
-            setLoading(false);
-          });
-      } else {
-        setError("Unity loader not available.");
-        setLoading(false);
+      );
+
+      // Step 4: Dynamically find the Unity files
+      let loaderFile, dataFile, frameworkFile, wasmFile;
+      for (const filename of Object.keys(files)) {
+        if (filename.endsWith(".loader.js")) {
+          loaderFile = filename;
+        } else if (filename.endsWith(".data")) {
+          dataFile = filename;
+        } else if (filename.endsWith(".framework.js")) {
+          frameworkFile = filename;
+        } else if (filename.endsWith(".wasm")) {
+          wasmFile = filename;
+        }
       }
-    };
 
-    script.onerror = () => {
-      console.error("Failed to load TestBuilds.loader.js");
-      setError("Failed to load Unity script.");
+      // Step 5: Validate that all required files are present
+      if (!loaderFile) throw new Error("Missing .loader.js file");
+      if (!dataFile) throw new Error("Missing .data file");
+      if (!frameworkFile) throw new Error("Missing .framework.js file");
+      if (!wasmFile) throw new Error("Missing .wasm file");
+
+      // Step 6: Create Blob URLs for Unity files
+      const loaderUrl = URL.createObjectURL(files[loaderFile]);
+      const dataUrl = URL.createObjectURL(files[dataFile]);
+      const frameworkUrl = URL.createObjectURL(files[frameworkFile]);
+      const wasmUrl = URL.createObjectURL(files[wasmFile]);
+
+      // Step 7: Dynamically load the Unity loader script
+      const script = document.createElement("script");
+      script.src = loaderUrl;
+      script.async = true;
+
+      script.onload = () => {
+        if (window.createUnityInstance) {
+          createUnityInstance(unityCanvasRef.current, {
+            dataUrl,
+            frameworkUrl,
+            codeUrl: wasmUrl,
+            id: "unity-canvas",
+          })
+            .then((instance) => {
+              console.log("Unity game loaded successfully:", instance);
+              unityInstanceRef.current = instance;
+              setLoading(false);
+            })
+            .catch((err) => {
+              console.error("Error loading Unity game:", err);
+              setError("Failed to load the game: " + err.message);
+              setLoading(false);
+            });
+        } else {
+          setError("Unity loader not available.");
+          setLoading(false);
+        }
+      };
+
+      script.onerror = () => {
+        setError("Failed to load Unity loader script.");
+        setLoading(false);
+      };
+
+      document.body.appendChild(script);
+    } catch (err) {
+      console.error("Error processing ZIP:", err);
+      setError("Failed to process game files: " + err.message);
       setLoading(false);
-    };
-
-    document.body.appendChild(script);
+    }
   };
 
   useEffect(() => {
     return () => {
-      console.log("Unmounting or navigating away from GamePage...");
       if (unityInstanceRef.current) {
-        console.log("Attempting to quit Unity instance...");
-        unityInstanceRef.current
-          .Quit()
-          .then(() => {
-            console.log("Unity instance quit successfully");
-            const audios = document.querySelectorAll("audio");
-            audios.forEach((audio) => audio.pause());
-
-            if (window.AudioContext) {
-              try {
-                const audioCtx = new window.AudioContext();
-                audioCtx.suspend().then(() => {
-                  console.log("Audio context suspended");
-                });
-                audioCtx.close().then(() => {
-                  console.log("Audio context closed");
-                });
-              } catch (error) {
-                console.warn("Audio context cleanup failed:", error);
-              }
-            }
-            unityInstanceRef.current = null;
-          })
-          .catch((err) => {
-            console.error("Error quitting Unity:", err);
-          });
-      } else {
-        console.log("No Unity instance to quit");
+        unityInstanceRef.current.Quit().then(() => {
+          console.log("Unity instance quit successfully");
+          unityInstanceRef.current = null;
+        });
       }
     };
   }, [location]);
@@ -89,7 +134,7 @@ function GamePage() {
   const handleStartGame = () => {
     if (!gameStarted) {
       setGameStarted(true);
-      loadUnityGame();
+      loadUnityGameFromZip();
     }
   };
 
@@ -102,14 +147,10 @@ function GamePage() {
             Play Unity Game
           </h1>
 
-          {/* Fake Canvas with Play Button */}
           {!gameStarted && !loading && !error && (
             <div
               className="w-full max-w-4xl mx-auto bg-black relative"
-              style={{
-                height: "600px",
-                border: "1px solid white",
-              }}
+              style={{ height: "600px", border: "1px solid white" }}
             >
               <button
                 onClick={handleStartGame}
@@ -120,33 +161,24 @@ function GamePage() {
             </div>
           )}
 
-          {/* Loading State */}
           {loading && (
             <div
               className="w-full max-w-4xl mx-auto bg-black flex items-center justify-center"
-              style={{
-                height: "600px",
-                border: "1px solid white",
-              }}
+              style={{ height: "600px", border: "1px solid white" }}
             >
               <p className="text-center">Loading game...</p>
             </div>
           )}
 
-          {/* Error State */}
           {error && (
             <div
               className="w-full max-w-4xl mx-auto bg-black flex items-center justify-center"
-              style={{
-                height: "600px",
-                border: "1px solid white",
-              }}
+              style={{ height: "600px", border: "1px solid white" }}
             >
               <p className="text-center text-red-500">{error}</p>
             </div>
           )}
 
-          {/* Unity Canvas */}
           <canvas
             ref={unityCanvasRef}
             id="unity-canvas"
