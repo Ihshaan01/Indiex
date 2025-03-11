@@ -19,7 +19,7 @@ const Card = ({ item }) => {
         <div className="flex items-center">
           <StarRating rating={item.ratingAverage || 0} />
           <span className="text-gray-400 text-sm">
-            {item?.ratingAverage || 0} ({item?.totalrating || 0})
+            {item?.ratingAverage || 0} ({item?.totalRating || 0})
           </span>
         </div>
         <div className="flex items-center mb-2">

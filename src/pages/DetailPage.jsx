@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom"; // Added useNavigate
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
-import { IconContext } from "react-icons";
-import { IoPersonOutline } from "react-icons/io5";
-import User from "../assets/user2.png";
-import StarRating from "../components/StarRating";
-import { DropDown } from "../components/DropDown";
-import { FaHistory, FaUserEdit } from "react-icons/fa";
 import SliderCarasoul from "../components/SliderCarasoul";
 import TabbedDetails from "../components/TabbedDetail";
+import StarRating from "../components/StarRating";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
 
 function DetailPage() {
   const { id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate(); // Added for navigation
+  const navigate = useNavigate();
   const [item, setItem] = useState(null);
   const [relatedItems, setRelatedItems] = useState([]);
   const [storeItems, setStoreItems] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user } = useAuthStore();
   const type = location.state;
+
+  const [newRating, setNewRating] = useState(0);
+  const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
     const fetchItemDetails = async () => {
@@ -81,7 +80,18 @@ function DetailPage() {
           setStoreItems(filteredStoreItems);
         };
 
-        await Promise.all([fetchRelatedItems(), fetchStoreItems()]);
+        const fetchReviews = async () => {
+          const reviewResponse = await apiClient.get(
+            `/users/reviews/${type.toLowerCase()}/${id}`
+          );
+          setReviews(reviewResponse.data.reviews);
+        };
+
+        await Promise.all([
+          fetchRelatedItems(),
+          fetchStoreItems(),
+          fetchReviews(),
+        ]);
       } catch (error) {
         setError("Failed to fetch item details. Please try again later.");
         console.error(error);
@@ -106,7 +116,6 @@ function DetailPage() {
         type: type,
         quantity: 1,
       });
-      console.log("Added to cart:", response.data);
       alert("Item added to cart successfully!");
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -122,19 +131,71 @@ function DetailPage() {
     }
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Please log in to submit a review.");
+      return;
+    }
+    if (newRating < 1 || newRating > 5) {
+      alert("Please select a rating between 1 and 5 stars.");
+      return;
+    }
+    try {
+      const response = await apiClient.post("/users/reviews", {
+        itemId: id,
+        itemType: type.toLowerCase(),
+        rating: newRating,
+        comment: newComment,
+      });
+      setReviews([...reviews, response.data.review]);
+      setNewRating(0);
+      setNewComment("");
+      alert("Review submitted successfully!");
+
+      const updatedItem = await apiClient.get(
+        `/users/get-${type.toLowerCase()}-detail/${id}`
+      );
+      setItem(updatedItem.data);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to submit review.";
+      alert(errorMessage);
+    }
+  };
+
+  const handleChatWithFreelancer = () => {
+    if (!user) {
+      alert("Please log in to chat with the freelancer.");
+      return;
+    }
+    // Navigate to chat page with gig ID and store info
+    navigate(`/chat/${id}`, {
+      state: {
+        storeId: item.store._id,
+        storeName: item.store.name,
+        type: "Gig",
+      },
+    });
+  };
+
   if (loading) {
     return (
-      <div className="text-white text-center">Loading item details...</div>
+      <div className="text-white text-center py-10">
+        Loading item details...
+      </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    return <div className="text-red-500 text-center py-10">{error}</div>;
   }
 
   if (!item) {
-    return <div className="text-white text-center">Item not found.</div>;
+    return <div className="text-white text-center py-10">Item not found.</div>;
   }
+  console.log(item);
 
   return (
     <div>
@@ -160,8 +221,8 @@ function DetailPage() {
 
           <div className="mt-4 flex items-center gap-3">
             <img
-              src={User}
-              alt="profile"
+              src={item.store?.image}
+              alt="store"
               className="w-8 h-8 rounded-full object-cover border-2 border-gray-700"
             />
             <p className="text-gray-200 font-medium">
@@ -199,7 +260,7 @@ function DetailPage() {
             {type === "Gig" && item.packages && (
               <div className="space-y-4">
                 <select
-                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   defaultValue={item.packages[0]?.name.toLowerCase()}
                   onChange={(e) => {
                     const selectedPackage = item.packages.find(
@@ -208,11 +269,7 @@ function DetailPage() {
                   }}
                 >
                   {item.packages.map((pkg) => (
-                    <option
-                      key={pkg.name}
-                      value={pkg.name.toLowerCase()}
-                      className="bg-gray-800 text-white"
-                    >
+                    <option key={pkg.name} value={pkg.name.toLowerCase()}>
                       {pkg.name}
                     </option>
                   ))}
@@ -268,13 +325,13 @@ function DetailPage() {
             )}
           </div>
 
-          {/* Buttons */}
           <div className="mt-6 space-y-4">
-            {" "}
-            {/* Added space-y-4 for spacing between buttons */}
             {type === "Gig" ? (
-              <button className="w-full h-12 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold text-lg rounded-lg hover:from-gray-700 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 shadow-md">
-                Contact Freelancer
+              <button
+                onClick={handleChatWithFreelancer}
+                className="w-full h-12 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold text-lg rounded-lg hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+              >
+                Chat with Freelancer
               </button>
             ) : (
               <button
@@ -284,7 +341,6 @@ function DetailPage() {
                 Add to Cart
               </button>
             )}
-            {/* Launch Game Demo Button */}
             {type === "Game" && item.webglDemoZip && (
               <button
                 onClick={handleLaunchDemo}
@@ -310,6 +366,12 @@ function DetailPage() {
                     {item.latestVersion}
                   </span>
                 </div>
+                {type === "Game" && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Platform</span>
+                    <span className="text-white font-medium">WebGL</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center col-span-2">
                   <span className="text-gray-400">Release Date</span>
                   <span className="text-white font-medium">
@@ -328,6 +390,16 @@ function DetailPage() {
             description={item.description}
             keywords={item.keywords}
             store={item.store}
+            reviews={reviews}
+            setReviews={setReviews}
+            handleSubmitReview={handleSubmitReview}
+            newRating={newRating}
+            setNewRating={setNewRating}
+            newComment={newComment}
+            setNewComment={setNewComment}
+            user={user}
+            itemId={id}
+            itemType={type.toLowerCase()}
           />
         </div>
         <div></div>

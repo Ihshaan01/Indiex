@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
-import { IoMenu, IoPersonOutline } from "react-icons/io5";
+import { IoChatbubblesOutline, IoMenu, IoPersonOutline } from "react-icons/io5";
 import { IconContext } from "react-icons";
 import SignUpModal from "./SignUpModal";
 import SignInModal from "./SignInModel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import apiClient from "../middleware/apiMiddleware";
 import { FaChartColumn } from "react-icons/fa6";
@@ -109,7 +109,7 @@ const Header = () => {
       alert("Failed to update role.");
     }
   };
-
+  const navigate = useNavigate();
   return (
     <header
       className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 px-6 shadow-lg sticky top-0 z-50"
@@ -165,6 +165,14 @@ const Header = () => {
                   <FaChartColumn />
                 </Link>
               )}
+              <div className="p-6">
+                <button
+                  onClick={() => navigate("/chats")}
+                  className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
+                >
+                  <IoChatbubblesOutline />
+                </button>
+              </div>
               <button
                 className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
                 onClick={() => {

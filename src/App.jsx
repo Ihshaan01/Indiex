@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CreateAssetForm from "./components/CreateAssetForm";
 import GamePage from "./pages/GamePage";
+import ChatPage from "./pages/ChatPage";
+import ChatListPage from "./pages/ChatListPage";
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
             <Route path="/Dashboard" element={<Dashboard />} />
           </Route>
           <Route path="/game" element={<GamePage />} />
+          <Route path="/chat/:gigId" element={<ChatPage />} />
+          <Route path="/chats" element={<ChatListPage />} />
           <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>

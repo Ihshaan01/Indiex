@@ -1,7 +1,22 @@
 import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import StarRating from "./StarRating"; // Adjust the import path based on your structure
 
-const TabbedDetails = ({ description, keywords, store }) => {
+const TabbedDetails = ({
+  description,
+  keywords,
+  store,
+  reviews,
+  setReviews,
+  handleSubmitReview,
+  newRating,
+  setNewRating,
+  newComment,
+  setNewComment,
+  user,
+  itemId,
+  itemType,
+}) => {
   const [activeTab, setActiveTab] = useState("OverView");
   const [openedSection, setOpenedSection] = useState("Description");
 
@@ -114,24 +129,18 @@ const TabbedDetails = ({ description, keywords, store }) => {
         </div>
       )}
 
-      {/* {activeTab === "Package Contents" && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold text-white">Package Contents</h2>
-          <ul className="list-disc pl-5 mt-4 text-gray-300">
-            <li>1x Item 1</li>
-            <li>1x Item 2</li>
-            <li>1x Item 3</li>
-            <li>1x Item 4</li>
-          </ul>
-        </div>
-      )} */}
-
       {activeTab === "Publisher Info" && (
         <div className="mt-4">
           <h2 className="text-xl font-bold text-white">Publisher Info</h2>
-          <p className="mt-4 text-gray-300">Publisher: Awesome Games Ltd.</p>
-          <p className="mt-2 text-gray-300">Founded: 2010</p>
-          <p className="mt-2 text-gray-300">Contact: info@awesomegames.com</p>
+          <p className="mt-4 text-gray-300">
+            Publisher: {store?.name || "Unknown Store"}
+          </p>
+          <p className="mt-2 text-gray-300">Founded: 2010</p>{" "}
+          {/* Update with real data if available */}
+          <p className="mt-2 text-gray-300">
+            Contact: info@awesomegames.com
+          </p>{" "}
+          {/* Update with real data if available */}
         </div>
       )}
 
@@ -139,16 +148,63 @@ const TabbedDetails = ({ description, keywords, store }) => {
         <div className="mt-4">
           <h2 className="text-xl font-bold text-white">Reviews</h2>
           <div className="mt-4 space-y-4">
-            {[1, 2, 3].map((review) => (
-              <div key={review} className="border p-4 rounded-md">
-                <p className="font-semibold text-gray-200">User {review}</p>
-                <p className="text-gray-300 mt-2">
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  do eiusmod tempor incididunt ut labore et dolore magna
-                  aliqua."
-                </p>
+            {reviews.length > 0 ? (
+              reviews.map((review, index) => (
+                <div key={index} className="border p-4 rounded-md bg-gray-800">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={review.user?.profilePic} // Fallback if profilePic is missing
+                      alt="user"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
+                    />
+                    <div>
+                      <p className="text-gray-200 font-medium">
+                        {review.user.username}
+                      </p>
+                      <StarRating rating={review.rating} />
+                    </div>
+                  </div>
+                  <p className="text-gray-300 mt-2">
+                    {review.comment || "No comment provided."}
+                  </p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400">
+                No reviews yet. Be the first to review!
+              </p>
+            )}
+
+            {/* Review Submission Form */}
+            <form onSubmit={handleSubmitReview} className="mt-6">
+              <h4 className="text-lg font-semibold text-white mb-2">
+                Write a Review
+              </h4>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-gray-300">Rating:</span>
+                <StarRating
+                  rating={newRating}
+                  editable={true}
+                  ratingChanged={(rating) => setNewRating(rating)}
+                />
               </div>
-            ))}
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write your review here..."
+                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="4"
+              />
+              <button
+                type="submit"
+                className="mt-4 w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold text-lg rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-md"
+              >
+                Submit Review
+              </button>
+            </form>
           </div>
         </div>
       )}
