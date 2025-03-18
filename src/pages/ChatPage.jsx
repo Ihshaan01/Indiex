@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
+
+const socket = io("http://localhost:5000"); // Adjust to your backend URL
 
 function ChatPage() {
   const { gigId } = useParams();
@@ -15,11 +18,11 @@ function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch initial chat history
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
         const response = await apiClient.get(`/users/chats/${gigId}`);
-        console.log(response.data);
         setMessages(response.data.messages);
       } catch (err) {
         setError("Failed to load chat history.");
@@ -31,28 +34,49 @@ function ChatPage() {
 
     if (user) {
       fetchChatHistory();
+      socket.emit("joinChat", gigId); // Join the chat room
     } else {
       setLoading(false);
       setError("Please log in to view chat.");
     }
   }, [gigId, user]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
+  // Listen for new messages
+  useEffect(() => {
+    socket.on("receiveMessage", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
 
-    try {
-      const response = await apiClient.post("/users/chats", {
-        gigId,
-        content: newMessage,
-      });
-      setMessages([...messages, response.data.data]);
-      setNewMessage("");
-    } catch (err) {
-      console.error("Error sending message:", err);
-      alert("Failed to send message.");
-    }
-  };
+    // Cleanup listener on unmount
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, []);
+
+  const handleSendMessage = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!newMessage.trim() || !user) return;
+
+      socket.emit(
+        "sendMessage",
+        {
+          gigId,
+          content: newMessage,
+          senderId: user.id,
+          receiverId: state?.storeId, // Store owner as receiver
+        },
+        (response) => {
+          if (response.status === "error") {
+            alert(response.message);
+          } else {
+            setNewMessage("");
+          }
+        }
+      );
+    },
+    [newMessage, user, gigId, state?.storeId]
+  );
 
   if (loading) {
     return <div className="text-white text-center py-10">Loading chat...</div>;

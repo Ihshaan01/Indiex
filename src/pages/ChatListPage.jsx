@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
 
+const socket = io("http://localhost:5000"); // Adjust to your backend URL
+
 function ChatListPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore(); // Assuming logout clears the user state
+  const { user, logout } = useAuthStore();
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  console.log("User:", user);
   useEffect(() => {
     const fetchChatList = async () => {
       try {
@@ -20,17 +23,14 @@ function ChatListPage() {
         setThreads(response.data.threads);
       } catch (err) {
         console.error(err);
-
-        // Check for invalid or expired token (401 status or specific message)
         if (
           err.response?.status === 401 ||
           err.response?.data?.message === "Invalid or expired token"
         ) {
-          logout(); // Clear user state
-          navigate("/"); // Navigate to home screen
+          logout();
+          navigate("/");
           return;
         }
-
         setError("Failed to load chat list.");
       } finally {
         setLoading(false);
@@ -44,6 +44,25 @@ function ChatListPage() {
       setError("Please log in to view your chats.");
     }
   }, [user, navigate, logout]);
+
+  // Listen for chat list updates
+  useEffect(() => {
+    if (!user) return;
+
+    socket.on("updateChatList", async ({ gigId }) => {
+      try {
+        const response = await apiClient.get("/users/chats");
+        setThreads(response.data.threads);
+      } catch (err) {
+        console.error("Error updating chat list:", err);
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+      socket.off("updateChatList");
+    };
+  }, [user]);
 
   const handleOpenChat = (gigId, storeId, storeName) => {
     navigate(`/chat/${gigId}`, { state: { storeId, storeName, type: "Gig" } });
@@ -79,14 +98,21 @@ function ChatListPage() {
                 className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 cursor-pointer transition-all duration-200 shadow-md"
               >
                 <img
-                  src={thread.storeImage || "https://via.placeholder.com/50"}
+                  src={
+                    user.id === thread.otherParticipantId
+                      ? user.profilePic
+                      : thread.otherParticipant.profilePic ||
+                        "https://via.placeholder.com/50"
+                  }
                   alt="store"
                   className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
                 />
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <h2 className="text-lg font-semibold">
-                      {thread.storeName}
+                      {user.id === thread.otherParticipantId
+                        ? user.username
+                        : thread.otherParticipant.username}
                     </h2>
                     <span className="text-sm text-gray-400">
                       {new Date(
