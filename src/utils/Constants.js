@@ -1,4 +1,4 @@
-export const sokitIoURL = "https://backend-main-zeta.vercel.app";
+export const sokitIoURL = "https://backend-main-zeta.vercel.app:5000";
 //http://localhost:5000
 //https://backend-main-zeta.vercel.app
 export const baseUrl = "https://backend-main-zeta.vercel.app/api";
