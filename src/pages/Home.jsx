@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from "../components/Header";
 import HeroBanner from "../components/HeroBanner";
 import Card from "../components/Card";
@@ -7,13 +7,14 @@ import { Link } from "react-router-dom";
 import apiClient from "../middleware/apiMiddleware";
 
 export default function Home() {
-  const [assets, setAssets] = useState([]); // State to store assets data
-  const [gigs, setGigs] = useState([]); // State to store gigs data
-  const [games, setGames] = useState([]); // State to store games data
-  const [loading, setLoading] = useState(true); // State to handle loading
-  const [error, setError] = useState(null); // State to handle errors
+  const [assets, setAssets] = useState([]);
+  const [gigs, setGigs] = useState([]);
+  const [games, setGames] = useState([]);
+  const [loadingCritical, setLoadingCritical] = useState(true); // For critical data (e.g., assets)
+  const [loadingNonCritical, setLoadingNonCritical] = useState(true); // For gigs and games
+  const [error, setError] = useState(null);
 
-  // Fetch data from APIs
+  // Fetch critical data (assets) first
   useEffect(() => {
     const fetchAssets = async () => {
       try {
@@ -21,41 +22,58 @@ export default function Home() {
         setAssets(response.data.assets);
       } catch (error) {
         setError("Failed to fetch assets. Please try again later.");
+        console.error(error);
+      } finally {
+        setLoadingCritical(false);
       }
     };
 
-    const fetchGigs = async () => {
-      try {
-        const response = await apiClient.get("/users/gigs");
-        setGigs(response.data.gigs);
-      } catch (error) {
-        setError("Failed to fetch gigs. Please try again later.");
-      }
-    };
-
-    const fetchGames = async () => {
-      try {
-        const response = await apiClient.get("/users/games"); // Call the getAllGames API
-        setGames(response.data.games); // Set the fetched games data
-      } catch (error) {
-        setError("Failed to fetch games. Please try again later.");
-      }
-    };
-
-    // Fetch all data concurrently and set loading to false when all are done
-    Promise.all([fetchAssets(), fetchGigs(), fetchGames()])
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false)); // Ensure loading stops even if there's an error
+    fetchAssets();
   }, []);
 
-  // Render loading state
-  if (loading) {
-    return <div className="text-white text-center">Loading content...</div>;
+  // Fetch non-critical data (gigs and games) after critical data
+  useEffect(() => {
+    if (loadingCritical) return; // Wait until critical data is loaded
+
+    const fetchNonCriticalData = async () => {
+      try {
+        const [gigsResponse, gamesResponse] = await Promise.all([
+          apiClient.get("/users/gigs"),
+          apiClient.get("/users/games"),
+        ]);
+        setGigs(gigsResponse.data.gigs);
+        setGames(gamesResponse.data.games);
+      } catch (error) {
+        console.error("Error fetching non-critical data:", error);
+        // Optionally set a non-critical error state
+      } finally {
+        setLoadingNonCritical(false);
+      }
+    };
+
+    fetchNonCriticalData();
+  }, [loadingCritical]);
+
+  // Memoize sliced arrays to prevent unnecessary re-renders
+  const topAssets = useMemo(() => assets.slice(0, 4), [assets]);
+  const topGigs = useMemo(() => gigs.slice(0, 4), [gigs]);
+  const topGames = useMemo(() => games.slice(0, 4), [games]);
+
+  // Critical loading state with a spinner
+  if (loadingCritical) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading content...</p>
+        </div>
+      </div>
+    );
   }
 
-  // Render error state
+  // Error state
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    return <div className="text-red-500 text-center py-10">{error}</div>;
   }
 
   return (
@@ -64,28 +82,36 @@ export default function Home() {
       <HeroBanner />
 
       {/* Top Freelancers Section */}
-      <div>
+      <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
           Top Freelancers
         </h3>
-        <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {gigs.slice(0, 4).map((gig, index) => (
-            <Link key={index} to={`/DetailPage/${gig._id}`} state={gig.type}>
-              <Card item={gig} />
-            </Link>
-          ))}
-        </div>
+        {loadingNonCritical ? (
+          <SkeletonCardGrid />
+        ) : (
+          <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
+            {topGigs.map((gig, index) => (
+              <Link
+                key={index}
+                to={`/DetailPage/${gig._id}`}
+                state={gig.type || "Gig"}
+              >
+                <Card item={gig} />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Top Assets Section */}
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">Top Assets</h3>
         <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {assets.slice(0, 4).map((asset, index) => (
+          {topAssets.map((asset, index) => (
             <Link
               key={index}
               to={`/DetailPage/${asset._id}`}
-              state={asset.type}
+              state={asset.type || "Asset"}
             >
               <Card item={asset} />
             </Link>
@@ -96,16 +122,46 @@ export default function Home() {
       {/* Top Games Section */}
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">Top Games</h3>
-        <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
-          {games.slice(0, 4).map((game, index) => (
-            <Link key={index} to={`/DetailPage/${game._id}`} state={game.type}>
-              <Card item={game} />
-            </Link>
-          ))}
-        </div>
+        {loadingNonCritical ? (
+          <SkeletonCardGrid />
+        ) : (
+          <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
+            {topGames.map((game, index) => (
+              <Link
+                key={index}
+                to={`/DetailPage/${game._id}`}
+                state={game.type || "Game"}
+              >
+                <Card item={game} />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       <Footer />
+    </div>
+  );
+}
+
+// Skeleton Card Grid Component
+function SkeletonCardGrid() {
+  return (
+    <div className="grid lg:grid-cols-4 gap-4 mx-10 md:grid-cols-2 grid-cols-1">
+      {Array(4)
+        .fill()
+        .map((_, index) => (
+          <div
+            key={index}
+            className="bg-gray-800 h-64 rounded-lg animate-pulse"
+          >
+            <div className="h-40 bg-gray-700 rounded-t-lg"></div>
+            <div className="p-4 space-y-2">
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }

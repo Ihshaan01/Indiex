@@ -5,8 +5,10 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
+import user from "../assets/user2.png";
+import { sokitIoURL } from "../utils/Constants";
 
-const socket = io("http://localhost:5000"); // Adjust to your backend URL
+const socket = io(sokitIoURL); // Adjust to your backend URL
 
 function ChatListPage() {
   const navigate = useNavigate();
@@ -14,15 +16,15 @@ function ChatListPage() {
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log("User:", user);
+
   useEffect(() => {
     const fetchChatList = async () => {
       try {
         const response = await apiClient.get("/users/chats");
-        console.log(response.data);
+        console.log("Chat list response:", response.data);
         setThreads(response.data.threads);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching chat list:", err);
         if (
           err.response?.status === 401 ||
           err.response?.data?.message === "Invalid or expired token"
@@ -64,12 +66,37 @@ function ChatListPage() {
     };
   }, [user]);
 
-  const handleOpenChat = (gigId, storeId, storeName) => {
-    navigate(`/chat/${gigId}`, { state: { storeId, storeName, type: "Gig" } });
+  const handleOpenChat = (
+    chatId,
+    gigId,
+    storeId,
+    storeName,
+    initiatorId,
+    gigOwnerId
+  ) => {
+    navigate(`/chat/${chatId}`, {
+      state: {
+        storeId,
+        gigId,
+        storeName,
+        chatId: chatId,
+        type: "Gig",
+        initiatorId,
+        gigOwnerId,
+      },
+    });
   };
 
-  if (loading) {
-    return <div className="text-white text-center py-10">Loading chats...</div>;
+  // Full-page spinner for initial load
+  if (loading && threads.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading your chats...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -89,55 +116,100 @@ function ChatListPage() {
           </p>
         ) : (
           <div className="space-y-4">
-            {threads.map((thread) => (
-              <div
-                key={thread.gigId}
-                onClick={() =>
-                  handleOpenChat(thread.gigId, thread.storeId, thread.storeName)
-                }
-                className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 cursor-pointer transition-all duration-200 shadow-md"
-              >
-                <img
-                  src={
-                    user.id === thread.otherParticipantId
-                      ? user.profilePic
-                      : thread.otherParticipant.profilePic ||
-                        "https://via.placeholder.com/50"
-                  }
-                  alt="store"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
-                />
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">
-                      {user.id === thread.otherParticipantId
-                        ? user.username
-                        : thread.otherParticipant.username}
-                    </h2>
-                    <span className="text-sm text-gray-400">
-                      {new Date(
-                        thread.lastMessage.timestamp
-                      ).toLocaleDateString()}
-                    </span>
+            {loading ? (
+              <SkeletonChatList count={3} />
+            ) : (
+              threads.map((thread) => {
+                const isSender = thread.initiator.id === user.id;
+                const otherParticipant = isSender
+                  ? thread.gigOwner
+                  : thread.initiator;
+
+                return (
+                  <div
+                    key={thread.gigId}
+                    onClick={() =>
+                      handleOpenChat(
+                        thread._id,
+                        thread.gigId,
+                        thread.storeId,
+                        thread.storeName,
+                        thread.initiator.id,
+                        thread.gigOwner.id
+                      )
+                    }
+                    className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 cursor-pointer transition-all duration-200 shadow-md"
+                  >
+                    <img
+                      src={
+                        otherParticipant.profilePic ||
+                        "https://randomuser.me/api/portraits/men/15.jpg"
+                      }
+                      alt="participant"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-gray-600"
+                    />
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <h2 className="text-lg font-semibold">
+                          {otherParticipant.username}
+                        </h2>
+                        <span className="text-sm text-gray-400">
+                          {thread.lastMessage?.timestamp
+                            ? new Date(
+                                thread.lastMessage.timestamp
+                              ).toLocaleDateString()
+                            : "No messages yet"}
+                        </span>
+                      </div>
+                      <p className="text-gray-300 text-sm truncate">
+                        {thread.gigName}
+                      </p>
+                      {thread.lastMessage && (
+                        <p className="text-gray-400 text-sm truncate">
+                          {thread.lastMessage.content}
+                        </p>
+                      )}
+                      {thread.lastMessage &&
+                        !thread.lastMessage.isRead &&
+                        thread.gigOwner.id === user.id && (
+                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full mt-1"></span>
+                        )}
+                    </div>
                   </div>
-                  <p className="text-gray-300 text-sm truncate">
-                    {thread.gigName}
-                  </p>
-                  <p className="text-gray-400 text-sm truncate">
-                    {thread.lastMessage.content}
-                  </p>
-                  {!thread.lastMessage.isRead &&
-                    thread.lastMessage.receiverId === user.id && (
-                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full mt-1"></span>
-                    )}
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         )}
       </div>
 
       <Footer />
+    </div>
+  );
+}
+
+// Skeleton component for chat list
+function SkeletonChatList({ count }) {
+  return (
+    <div className="space-y-4">
+      {Array(count)
+        .fill()
+        .map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg animate-pulse"
+          >
+            <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+            <div className="flex-1 space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="h-4 bg-gray-700 rounded w-1/3"></div>
+                <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+              </div>
+              <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+              <div className="h-3 bg-gray-700 rounded w-3/4"></div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }

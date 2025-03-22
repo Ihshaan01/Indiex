@@ -71,7 +71,7 @@ const TabbedDetails = ({
           </div>
 
           {/* Technical Details */}
-          <div>
+          {/* <div>
             <button
               onClick={() => toggleOpenedSection("TechnicalDetails")}
               className="w-full text-left text-lg font-bold border-b border-gray-200 py-2 flex items-center justify-between"
@@ -92,7 +92,7 @@ const TabbedDetails = ({
             >
               <p className="mt-2 text-gray-300">Add technical details here.</p>
             </div>
-          </div>
+          </div> */}
 
           {/* Keywords */}
           <div>

@@ -9,6 +9,7 @@ import useAuthStore from "../store/authStore";
 import apiClient from "../middleware/apiMiddleware";
 import { FaChartColumn } from "react-icons/fa6";
 import { Tooltip } from "react-tooltip";
+import { MdOutlineDataThresholding } from "react-icons/md";
 
 const Header = () => {
   const [expandedCategory, setExpandedCategory] = useState(null);
@@ -18,6 +19,7 @@ const Header = () => {
   const [userModalVisible, setUserModalVisible] = useState(false);
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { token, user, setUser, clearToken } = useAuthStore();
 
   const categories = [
@@ -110,6 +112,13 @@ const Header = () => {
     }
   };
   const navigate = useNavigate();
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+    }
+  };
   return (
     <header
       className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 px-6 shadow-lg sticky top-0 z-50"
@@ -135,15 +144,19 @@ const Header = () => {
                 >
                   <CiSearch />
                 </button>
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className={`absolute right-0 top-12 w-64 p-2 bg-gray-800 text-white rounded-md shadow-lg transition-all duration-300 ${
-                    searchOpen
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-2 pointer-events-none"
-                  }`}
-                />
+                <form onSubmit={handleSearch}>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={`absolute right-0 top-12 w-64 p-2 bg-gray-800 text-white rounded-md shadow-lg transition-all duration-300 ${
+                      searchOpen
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 -translate-y-2 pointer-events-none"
+                    }`}
+                  />
+                </form>
               </div>
               <Link
                 to="/Cart"
@@ -162,10 +175,10 @@ const Header = () => {
                   data-tooltip-content="Dashboard"
                   aria-label="Dashboard"
                 >
-                  <FaChartColumn />
+                  <MdOutlineDataThresholding />
                 </Link>
               )}
-              <div className="p-6">
+              <div className="p-2">
                 <button
                   onClick={() => navigate("/chats")}
                   className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import { Dialog, DialogTrigger, DialogContent } from "../components/Dialog";
@@ -21,7 +21,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import CreateAssetForm from "../components/CreateAssetForm";
-import CreateGigForm from "../components/CreateGigsForm"; // Assuming this is the correct import
+import CreateGigForm from "../components/CreateGigsForm";
 import CreateGamesForm from "../components/CreateGamesForm";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
@@ -33,129 +33,62 @@ const Dashboard = () => {
   const { user, store, setStore } = useAuthStore();
   const [assets, setAssets] = useState([]);
   const [gigs, setGigs] = useState([]);
-  const [games, setGames] = useState([]); // Initialize as empty array to be populated by API
+  const [games, setGames] = useState([]);
   const [showCreateAsset, setShowCreateAsset] = useState(false);
   const [showCreateGigs, setShowCreateGigs] = useState(false);
   const [showCreateGames, setShowCreateGames] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingCritical, setLoadingCritical] = useState(true); // For store settings
+  const [loadingNonCritical, setLoadingNonCritical] = useState(true); // For assets, gigs, games
+  const [error, setError] = useState(null);
   const [storePreview, setStorePreview] = useState(store?.image || "");
   const [storeSettings, setStoreSettings] = useState(
-    store || {
-      image: "",
-      name: "",
-      description: "",
-    }
+    store || { image: "", name: "", description: "" }
   );
 
   const [showAllAssets, setShowAllAssets] = useState(false);
   const [showAllGigs, setShowAllGigs] = useState(false);
   const [showAllGames, setShowAllGames] = useState(false);
 
-  const salesData = [
-    { name: "Jan", sales: 4000 },
-    { name: "Feb", sales: 3000 },
-    { name: "Mar", sales: 2000 },
-    { name: "Apr", sales: 2780 },
-    { name: "May", sales: 1890 },
-    { name: "Jun", sales: 2390 },
-  ];
+  // Memoized static chart data (if reintroduced later)
+  const salesData = useMemo(
+    () => [
+      { name: "Jan", sales: 4000 },
+      { name: "Feb", sales: 3000 },
+      { name: "Mar", sales: 2000 },
+      { name: "Apr", sales: 2780 },
+      { name: "May", sales: 1890 },
+      { name: "Jun", sales: 2390 },
+    ],
+    []
+  );
 
-  const revenueData = [
-    { name: "Assets", revenue: 2400 },
-    { name: "Gigs", revenue: 1398 },
-    { name: "Games", revenue: 9800 },
-  ];
+  const revenueData = useMemo(
+    () => [
+      { name: "Assets", revenue: 2400 },
+      { name: "Gigs", revenue: 1398 },
+      { name: "Games", revenue: 9800 },
+    ],
+    []
+  );
 
-  const userActivityData = [
-    { name: "Active Users", value: 400 },
-    { name: "Inactive Users", value: 300 },
-  ];
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Store settings updated:", storeSettings);
-  };
-
-  const [message, setMessage] = useState("");
-
-  const handleCreateStore = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("userId", user.id);
-    formData.append("name", storeSettings.name);
-    formData.append("description", storeSettings.description);
-    if (storeSettings.image) {
-      formData.append("image", storeSettings.image);
-    }
-    const userId = user.id;
-    const name = storeSettings.name;
-    const description = storeSettings.description;
-    const image = storeSettings.image;
-    try {
-      setLoading(true);
-      const response = await apiClient.post("/users/store", {
-        userId,
-        name,
-        description,
-        image,
-      });
-      console.log(response);
-
-      if (response.status === 201) {
-        console.log(response.data);
-        setMessage(response.data.message);
-        setStoreSettings(response.data.store);
-        setStorePreview(response.data.store.image);
-        setStore(response.data.store);
-      } else {
-        setMessage(response.data.message || "Failed to create store.");
-      }
-    } catch (error) {
-      setMessage("Error creating store.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditStore = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("storeId", store._id);
-    formData.append("name", storeSettings.name);
-    formData.append("description", storeSettings.description);
-    if (storeSettings.image) {
-      formData.append("image", storeSettings.image);
-    }
-    try {
-      setLoading(true);
-      const response = await apiClient.put("/users/update-store", formData);
-      console.log(response);
-
-      if (response.status === 200) {
-        setMessage(response.data.message);
-        setStoreSettings(response.data.store);
-        setStore(response.data.store);
-        setStorePreview(response.data.store.image);
-      } else {
-        setMessage(response.data.message || "Failed to Update store.");
-      }
-    } catch (error) {
-      setMessage("Error Updating store.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const userActivityData = useMemo(
+    () => [
+      { name: "Active Users", value: 400 },
+      { name: "Inactive Users", value: 300 },
+    ],
+    []
+  );
 
   const fetchAssetsByStoreId = async (storeId) => {
     try {
       const response = await apiClient.get(
         `/users/get-stores-assets/${storeId}`
       );
+      console.log("Assets response:", response.data);
       if (response.status === 200) {
-        console.log("Assets:", response.data.assets);
-        setAssets(response.data.assets);
+        setAssets(response.data?.assets || []);
       } else {
-        console.error("Failed to fetch assets:", response.data.message);
+        console.error("Failed to fetch assets:", response.data?.message);
       }
     } catch (error) {
       console.error("Error fetching assets:", error);
@@ -165,11 +98,12 @@ const Dashboard = () => {
   const fetchGigsByStoreId = async (storeId) => {
     try {
       const response = await apiClient.get(`/users/get-stores-gigs/${storeId}`);
+      console.log("Assets response:", response.data);
+
       if (response.status === 200) {
-        console.log("Gigs:", response.data.gigs);
-        setGigs(response.data.gigs);
+        setGigs(response.data?.gigs || []);
       } else {
-        console.error("Failed to fetch gigs:", response.data.message);
+        console.error("Failed to fetch gigs:", response.data?.message);
       }
     } catch (error) {
       console.error("Error fetching gigs:", error);
@@ -181,24 +115,122 @@ const Dashboard = () => {
       const response = await apiClient.get(
         `/users/get-stores-games/${storeId}`
       );
+      console.log("Assets response:", response.data);
+
       if (response.status === 200) {
-        console.log("Games:", response.data.games);
-        setGames(response.data.games); // Update games state
+        setGames(response.data?.games || []);
       } else {
-        console.error("Failed to fetch games:", response.data.message);
+        console.error("Failed to fetch games:", response.data?.message);
       }
     } catch (error) {
       console.error("Error fetching games:", error);
     }
   };
 
+  // Fetch critical data (store settings) first
   useEffect(() => {
-    if (store?._id) {
-      fetchAssetsByStoreId(store._id);
-      fetchGigsByStoreId(store._id);
-      fetchGamesByStoreId(store._id); // Fetch games when store ID is available
+    if (!user?.id) {
+      setError("Please log in to view your dashboard.");
+      setLoadingCritical(false);
+      return;
     }
-  }, [store?._id]);
+    setLoadingCritical(false); // No critical fetch needed if store is already in state
+  }, [user?.id]);
+
+  // Fetch non-critical data (assets, gigs, games) after store is available
+  useEffect(() => {
+    if (loadingCritical) return; // Wait for critical loading to finish
+
+    const fetchAllData = async () => {
+      console.log("fetchAllData called with store._id:", store?._id);
+      if (!store?._id) {
+        console.log("No store found, setting empty states");
+        setAssets([]);
+        setGigs([]);
+        setGames([]);
+        setLoadingNonCritical(false); // Explicitly set false when no store
+        return;
+      }
+
+      try {
+        await Promise.all([
+          fetchAssetsByStoreId(store._id),
+          fetchGigsByStoreId(store._id),
+          fetchGamesByStoreId(store._id),
+        ]);
+        console.log("All non-critical data fetched successfully");
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error.message);
+      } finally {
+        console.log("Setting loadingNonCritical to false");
+        setLoadingNonCritical(false); // Set false after fetch attempts
+      }
+    };
+
+    fetchAllData();
+  }, [store?._id, loadingCritical]);
+
+  const handleCreateStore = async (e) => {
+    e.preventDefault();
+    const userId = user?.id;
+    const { name, description, image } = storeSettings;
+    try {
+      setLoadingCritical(true);
+      const response = await apiClient.post("/users/store", {
+        userId,
+        name,
+        description,
+        image,
+      });
+      if (response.status === 201) {
+        setStoreSettings(response.data?.store);
+        setStorePreview(response.data?.store?.image);
+        setStore(response.data?.store);
+      }
+    } catch (error) {
+      setError("Error creating store.");
+    } finally {
+      setLoadingCritical(false);
+    }
+  };
+
+  const handleEditStore = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("storeId", store?._id);
+    formData.append("name", storeSettings?.name);
+    formData.append("description", storeSettings?.description);
+    if (storeSettings?.image) formData.append("image", storeSettings?.image);
+    try {
+      setLoadingCritical(true);
+      const response = await apiClient.put("/users/update-store", formData);
+      if (response.status === 200) {
+        setStoreSettings(response.data?.store);
+        setStore(response.data?.store);
+        setStorePreview(response.data?.store.image);
+      }
+    } catch (error) {
+      setError("Error updating store.");
+    } finally {
+      setLoadingCritical(false);
+    }
+  };
+
+  // Full-page spinner for initial load
+  if (loadingCritical) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-10">{error}</div>;
+  }
 
   return (
     <>
@@ -211,118 +243,34 @@ const Dashboard = () => {
           </div>
           <nav className="space-y-2">
             <a
-              href="#dashboard"
-              className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              <span className="mr-2">📊</span>
-              Dashboard
-            </a>
-            <a
               href="#assets"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
             >
-              <span className="mr-2">🖼️</span>
-              Assets
+              <span className="mr-2">🖼️</span> Assets
             </a>
             <a
               href="#gigs"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
             >
-              <span className="mr-2">💼</span>
-              Gigs
+              <span className="mr-2">💼</span> Gigs
             </a>
             <a
               href="#games"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
             >
-              <span className="mr-2">🎮</span>
-              Games
+              <span className="mr-2">🎮</span> Games
             </a>
             <a
               href="#store-settings"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
             >
-              <span className="mr-2">⚙️</span>
-              Store Settings
+              <span className="mr-2">⚙️</span> Store Settings
             </a>
           </nav>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 p-6 example">
-          <section id="dashboard" className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="p-4 bg-gray-700 rounded-lg shadow"
-              >
-                <h3 className="text-lg font-bold mb-2">Sales Over Time</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="p-4 bg-gray-700 rounded-lg shadow"
-              >
-                <h3 className="text-lg font-bold mb-2">Revenue by Category</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="revenue" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="p-4 bg-gray-700 rounded-lg shadow"
-              >
-                <h3 className="text-lg font-bold mb-2">User Activity</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={userActivityData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                      label
-                    />
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </motion.div>
-            </div>
-          </section>
-
           {/* Assets Section */}
           <Section
             title="Assets"
@@ -330,6 +278,9 @@ const Dashboard = () => {
             onCreate={() => setShowCreateAsset(true)}
             onViewAll={() => setShowAllAssets(true)}
             id="assets"
+            loading={loadingNonCritical}
+            noItemsMessage="No assets available. Create one to get started!"
+            SkeletonComponent={SkeletonCardGrid}
           />
 
           {/* Gigs Section */}
@@ -339,6 +290,9 @@ const Dashboard = () => {
             onCreate={() => setShowCreateGigs(true)}
             onViewAll={() => setShowAllGigs(true)}
             id="gigs"
+            loading={loadingNonCritical}
+            noItemsMessage="No gigs available. Create one to get started!"
+            SkeletonComponent={SkeletonCardGrid}
           />
 
           {/* Games Section */}
@@ -348,8 +302,12 @@ const Dashboard = () => {
             onCreate={() => setShowCreateGames(true)}
             onViewAll={() => setShowAllGames(true)}
             id="games"
+            loading={loadingNonCritical}
+            noItemsMessage="No games available. Create one to get started!"
+            SkeletonComponent={SkeletonCardGrid}
           />
 
+          {/* Store Settings Section */}
           <section id="store-settings" className="mb-12">
             <div className="min-h-screen bg-gray-800 text-white p-8">
               <div className="max-w-4xl mx-auto">
@@ -357,7 +315,7 @@ const Dashboard = () => {
                 <StoreSettingsForm
                   store={store}
                   onSubmit={store ? handleEditStore : handleCreateStore}
-                  loading={loading}
+                  loading={loadingCritical}
                 />
               </div>
             </div>
@@ -404,5 +362,27 @@ const Dashboard = () => {
     </>
   );
 };
+
+// Skeleton component for card grid (adjusted to match grid-cols-1 md:grid-cols-2 lg:grid-cols-3)
+function SkeletonCardGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {Array(5)
+        .fill()
+        .map((_, index) => (
+          <div
+            key={index}
+            className="bg-gray-800 h-64 rounded-lg animate-pulse"
+          >
+            <div className="h-40 bg-gray-700 rounded-t-lg"></div>
+            <div className="p-4 space-y-2">
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+    </div>
+  );
+}
 
 export default Dashboard;

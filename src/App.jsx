@@ -15,6 +15,7 @@ import CreateAssetForm from "./components/CreateAssetForm";
 import GamePage from "./pages/GamePage";
 import ChatPage from "./pages/ChatPage";
 import ChatListPage from "./pages/ChatListPage";
+import SearchPage from "./pages/SearchPage";
 
 export default function App() {
   return (
@@ -38,8 +39,9 @@ export default function App() {
             <Route path="/Dashboard" element={<Dashboard />} />
           </Route>
           <Route path="/game" element={<GamePage />} />
-          <Route path="/chat/:gigId" element={<ChatPage />} />
+          <Route path="/chat/:chatId" element={<ChatPage />} />
           <Route path="/chats" element={<ChatListPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>

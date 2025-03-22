@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IconContext } from "react-icons";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { FaFacebookF, FaTwitter } from "react-icons/fa";
@@ -8,10 +8,20 @@ import { useNavigate } from "react-router-dom";
 
 export default function Footer() {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState(""); // Add state for search query
+
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery(""); // Clear input after search
+    }
+  };
 
   return (
     <div className="bg-gray-900 w-full py-10 grid grid-cols-2">
-      <div className="w-full grid grid-cols-2 ml-5 ">
+      <div className="w-full grid grid-cols-2 ml-5">
         <div className="flex flex-col">
           <h1 className="text-white text-xl font-bold">Sell Assets</h1>
           <button className="text-white text-sm mt-2 text-start">
@@ -19,7 +29,7 @@ export default function Footer() {
           </button>
           <button className="text-white text-sm text-start">
             Submission Guideline
-          </button>{" "}
+          </button>
           <button
             className="text-white text-sm text-start"
             onClick={() => navigate("/faq/publisher")}
@@ -40,7 +50,7 @@ export default function Footer() {
             onClick={() => navigate("/Category/Assets")}
           >
             Top Free Assets
-          </button>{" "}
+          </button>
           <button
             className="text-white text-sm text-start"
             onClick={() => navigate("/Category/Assets")}
@@ -88,19 +98,25 @@ export default function Footer() {
         </div>
       </div>
       <div className="justify-center flex items-center">
-        <div className="rounded-md bg-gray-300  w-4/6 justify-center flex">
+        <form
+          onSubmit={handleSearch}
+          className="rounded-md bg-gray-800 w-4/6 flex items-center justify-between border border-gray-700"
+        >
           <input
-            className="rounded-md h-9 px-2 w-11/12 bg-gray-300 mr-2 focus:outline focus:outline-none "
-            placeholder="Search"
+            className="h-9 px-2 w-11/12 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-l-md"
+            placeholder="Search for assets, gigs, or games..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button>
-            <IconContext.Provider
-              value={{ color: "blue", size: "1.1em", font: "bold" }}
-            >
+          <button
+            type="submit"
+            className="p-2 text-purple-500 hover:text-purple-400 transition-colors duration-200"
+          >
+            <IconContext.Provider value={{ size: "1.5em" }}>
               <CiSearch />
             </IconContext.Provider>
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

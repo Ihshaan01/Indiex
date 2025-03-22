@@ -5,7 +5,7 @@ import useAuthStore from "../store/authStore";
 
 function CreateAssetForm({ val, onOpen, onClose }) {
   const [storeSettings, setStoreSettings] = useState({
-    category: "", // Add category field
+    category: "",
     youtubeLink: "",
     productName: "",
     price: "",
@@ -19,6 +19,7 @@ function CreateAssetForm({ val, onOpen, onClose }) {
 
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // Add loading state
   const { store } = useAuthStore();
   const categories = [
     "3D Animation",
@@ -56,6 +57,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
 
     if (!validateForm()) return;
 
+    setLoading(true); // Start loading
+
     const formData = new FormData();
     formData.append("storeId", store._id);
     formData.append("type", "Asset");
@@ -86,11 +89,16 @@ function CreateAssetForm({ val, onOpen, onClose }) {
 
       if (response.status === 201) {
         console.log("Asset created successfully:", response.data.asset);
-        onClose(); // Close the dialog after successful submission
+        onClose(); // Close the dialog after success
       }
     } catch (error) {
       console.error("Error creating asset:", error);
-      // Handle error (e.g., show error message to the user)
+      setErrors({
+        ...errors,
+        submit: "Failed to create asset. Please try again.",
+      });
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -122,7 +130,17 @@ function CreateAssetForm({ val, onOpen, onClose }) {
           <h3 className="text-2xl font-bold text-gray-800">Create New Asset</h3>
         </div>
 
-        <form onSubmit={handleCreate} className="space-y-6">
+        <form onSubmit={handleCreate} className="space-y-6 relative">
+          {/* Loader Overlay */}
+          {loading && (
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+                <p className="text-white mt-2">Creating asset...</p>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Image Upload */}
             <div className="md:col-span-2">
@@ -134,7 +152,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                 accept="image/*"
                 multiple
                 onChange={handleImageChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading} // Disable input during loading
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.images && (
                 <p className="text-red-500 text-sm mt-1">{errors.images}</p>
@@ -152,9 +171,10 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      disabled={loading} // Disable during loading
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"
                     >
-                      &times;
+                      ×
                     </button>
                   </div>
                 ))}
@@ -175,7 +195,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     youtubeLink: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
             </div>
 
@@ -193,7 +214,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     productName: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.productName && (
                 <p className="text-red-500 text-sm mt-1">
@@ -214,14 +236,15 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                 onChange={(e) =>
                   setStoreSettings({ ...storeSettings, price: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.price && (
                 <p className="text-red-500 text-sm mt-1">{errors.price}</p>
               )}
             </div>
 
-            {/* Discount in percentage */}
+            {/* Discount */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Discount (%)
@@ -237,7 +260,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     discount: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
             </div>
 
@@ -256,7 +280,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     fileSize: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.fileSize && (
                 <p className="text-red-500 text-sm mt-1">{errors.fileSize}</p>
@@ -277,7 +302,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     latestVersion: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.latestVersion && (
                 <p className="text-red-500 text-sm mt-1">
@@ -295,12 +321,14 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                 type="file"
                 accept=".zip"
                 onChange={handleFileChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.zipFile && (
                 <p className="text-red-500 text-sm mt-1">{errors.zipFile}</p>
               )}
             </div>
+
             {/* Category Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -314,7 +342,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     category: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               >
                 <option value="">Select a category</option>
                 {categories.map((category, index) => (
@@ -341,7 +370,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     description: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
                 rows="4"
               />
               {errors.description && (
@@ -365,7 +395,8 @@ function CreateAssetForm({ val, onOpen, onClose }) {
                     keywords: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.keywords && (
                 <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>
@@ -373,12 +404,18 @@ function CreateAssetForm({ val, onOpen, onClose }) {
             </div>
           </div>
 
+          {/* Submit Error */}
+          {errors.submit && (
+            <p className="text-red-500 text-sm mt-2">{errors.submit}</p>
+          )}
+
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={loading} // Disable button during loading
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Create New Asset
+              {loading ? "Creating..." : "Create New Asset"}
             </button>
           </div>
         </form>

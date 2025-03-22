@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from "../components/Header";
 import HeroBanner from "../components/HeroBanner";
 import Card from "../components/Card";
@@ -22,48 +22,51 @@ export default function Category() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const categories = [
-    {
-      name: "Assets",
-      subCategories: [
-        { name: "3D Animation" },
-        { name: "3D Models" },
-        { name: "2D Animation" },
-        { name: "2D Models" },
-        { name: "Music" },
-        { name: "Sound FX" },
-        { name: "Particles" },
-        { name: "Shaders" },
-      ],
-    },
-    {
-      name: "Gigs",
-      subCategories: [
-        { name: "Graphics & Design" },
-        { name: "Programming & Tech" },
-        { name: "Digital Marketing" },
-        { name: "Music & Audio" },
-        { name: "Video & Animation" },
-        { name: "Writing & Translation" },
-        { name: "Photography" },
-        { name: "Consulting" },
-      ],
-    },
-    {
-      name: "Games",
-      subCategories: [
-        { name: "Action" },
-        { name: "Fighting" },
-        { name: "Platformer" },
-        { name: "Puzzle" },
-        { name: "Simulation video game" },
-        { name: "Sports" },
-        { name: "Survival horror" },
-        { name: "First-person shooter" },
-        { name: "Role-playing video game" },
-      ],
-    },
-  ];
+  const categories = useMemo(
+    () => [
+      {
+        name: "Assets",
+        subCategories: [
+          { name: "3D Animation" },
+          { name: "3D Models" },
+          { name: "2D Animation" },
+          { name: "2D Models" },
+          { name: "Music" },
+          { name: "Sound FX" },
+          { name: "Particles" },
+          { name: "Shaders" },
+        ],
+      },
+      {
+        name: "Gigs",
+        subCategories: [
+          { name: "Graphics & Design" },
+          { name: "Programming & Tech" },
+          { name: "Digital Marketing" },
+          { name: "Music & Audio" },
+          { name: "Video & Animation" },
+          { name: "Writing & Translation" },
+          { name: "Photography" },
+          { name: "Consulting" },
+        ],
+      },
+      {
+        name: "Games",
+        subCategories: [
+          { name: "Action" },
+          { name: "Fighting" },
+          { name: "Platformer" },
+          { name: "Puzzle" },
+          { name: "Simulation video game" },
+          { name: "Sports" },
+          { name: "Survival horror" },
+          { name: "First-person shooter" },
+          { name: "Role-playing video game" },
+        ],
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -74,14 +77,13 @@ export default function Category() {
 
         const params = {
           price: priceFilter !== "Price" ? priceFilter : undefined,
-          rating: ratingFilter,
-          sort: sortBy,
+          rating: ratingFilter !== "Rating" ? ratingFilter : undefined,
+          sort: sortBy !== "Relevance" ? sortBy : undefined,
           page: currentPage,
           limit: resultsPerPage,
         };
 
         const response = await apiClient.get(endpoint, { params });
-        console.log(response.data);
         const items = response.data.items.map((item) => ({
           images: item.images,
           name: item.productName,
@@ -124,8 +126,16 @@ export default function Category() {
     }
   };
 
-  if (loading) {
-    return <div className="text-white text-center py-10">Loading items...</div>;
+  // Critical loading state with a spinner
+  if (loading && cards.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading items...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -175,12 +185,13 @@ export default function Category() {
           {/* Main Content */}
           <div className="flex flex-col px-3">
             <div className="mb-5">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-2xl font-bold text-white">
                 {selectedCategory
                   ? `${selectedCategory} in ${selectedType}`
                   : selectedType}
               </h1>
             </div>
+
             {/* Filters and Sorting */}
             <div className="flex justify-between items-center mb-5">
               <div className="flex flex-col">
@@ -234,7 +245,7 @@ export default function Category() {
                     value={resultsPerPage}
                     onChange={(e) => {
                       setResultsPerPage(parseInt(e.target.value));
-                      setCurrentPage(1); // Reset to page 1 on limit change
+                      setCurrentPage(1);
                     }}
                     className="bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
@@ -248,7 +259,9 @@ export default function Category() {
 
             {/* Card Grid */}
             <div className="grid md:grid-cols-4 grid-cols-1 gap-4 self-center w-11/12">
-              {cards.length > 0 ? (
+              {loading ? (
+                <SkeletonCardGrid count={resultsPerPage} />
+              ) : cards.length > 0 ? (
                 cards.map((card, index) => (
                   <Link
                     key={index}
@@ -266,53 +279,77 @@ export default function Category() {
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-center items-center mt-5">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`border rounded px-3 py-1 mx-1 text-gray-300 ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-700"
-                }`}
-              >
-                &lt;
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .slice(
-                  Math.max(0, currentPage - 3),
-                  Math.min(totalPages, currentPage + 2)
-                )
-                .map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`border rounded px-3 py-1 mx-1 ${
-                      currentPage === page
-                        ? "bg-blue-500 text-white"
-                        : "text-gray-300 hover:bg-blue-500 hover:text-white"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`border rounded px-3 py-1 mx-1 text-gray-300 ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-700"
-                }`}
-              >
-                &gt;
-              </button>
-            </div>
+            {!loading && cards.length > 0 && (
+              <div className="flex justify-center items-center mt-5">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`border rounded px-3 py-1 mx-1 text-gray-300 ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-700"
+                  }`}
+                >
+                  &lt;
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .slice(
+                    Math.max(0, currentPage - 3),
+                    Math.min(totalPages, currentPage + 2)
+                  )
+                  .map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`border rounded px-3 py-1 mx-1 ${
+                        currentPage === page
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-300 hover:bg-blue-500 hover:text-white"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`border rounded px-3 py-1 mx-1 text-gray-300 ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-700"
+                  }`}
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <Footer />
     </div>
+  );
+}
+
+// Skeleton Card Grid Component
+function SkeletonCardGrid({ count }) {
+  return (
+    <>
+      {Array(Math.min(count, 4))
+        .fill()
+        .map((_, index) => (
+          <div
+            key={index}
+            className="bg-gray-800 h-64 rounded-lg animate-pulse"
+          >
+            <div className="h-40 bg-gray-700 rounded-t-lg"></div>
+            <div className="p-4 space-y-2">
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+    </>
   );
 }

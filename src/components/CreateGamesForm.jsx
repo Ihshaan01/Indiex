@@ -18,11 +18,12 @@ function CreateGamesForm({ val, onOpen, onClose }) {
     category: "",
     platform: "",
     mobileType: "",
-    webglDemoZip: null, // Changed from webglDemoLink to webglDemoZip for file upload
+    webglDemoZip: null,
   });
   const { store } = useAuthStore();
-  const [images, setImages] = useState([]); // Separate state for image files
+  const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const categories = [
     "Action",
@@ -68,8 +69,10 @@ function CreateGamesForm({ val, onOpen, onClose }) {
 
     if (!validateForm()) return;
 
+    setLoading(true); // Start loading
+
     const formData = new FormData();
-    formData.append("storeId", store._id); // Replace with actual store ID from auth store
+    formData.append("storeId", store._id);
     formData.append("type", "Game");
     formData.append("category", storeSettings.category);
     formData.append("youtubeLink", storeSettings.youtubeLink);
@@ -94,11 +97,18 @@ function CreateGamesForm({ val, onOpen, onClose }) {
       const response = await apiClient.post("/users/create-games", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Game created successfully:", response.data);
-      onClose();
+      if (response.status === 201) {
+        console.log("Game created successfully:", response.data);
+        onClose(); // Close dialog on success
+      }
     } catch (error) {
       console.error("Error creating game:", error);
-      setErrors({ submit: "Failed to create game. Please try again." });
+      setErrors({
+        ...errors,
+        submit: "Failed to create game. Please try again.",
+      });
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -129,7 +139,17 @@ function CreateGamesForm({ val, onOpen, onClose }) {
           <h3 className="text-2xl font-bold text-gray-800">Create New Game</h3>
         </div>
 
-        <form onSubmit={handleCreate} className="space-y-6">
+        <form onSubmit={handleCreate} className="space-y-6 relative">
+          {/* Loader Overlay */}
+          {loading && (
+            <div className="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+                <p className="text-white mt-2">Creating game...</p>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Game Images */}
             <div className="md:col-span-2">
@@ -141,7 +161,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                 accept="image/*"
                 multiple
                 onChange={handleImageChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.images && (
                 <p className="text-red-500 text-sm mt-1">{errors.images}</p>
@@ -158,7 +179,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      disabled={loading}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"
                     >
                       ×
                     </button>
@@ -181,7 +203,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     youtubeLink: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
             </div>
 
@@ -199,7 +222,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     productName: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.productName && (
                 <p className="text-red-500 text-sm mt-1">
@@ -223,7 +247,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     fileSize: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.fileSize && (
                 <p className="text-red-500 text-sm mt-1">{errors.fileSize}</p>
@@ -244,7 +269,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     latestVersion: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.latestVersion && (
                 <p className="text-red-500 text-sm mt-1">
@@ -268,7 +294,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     price: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.price && (
                 <p className="text-red-500 text-sm mt-1">{errors.price}</p>
@@ -291,7 +318,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     discount: e.target.value,
                   })
                 }
-                className="w-full p-2 border rounded-lg text-gray-700"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.discount && (
                 <p className="text-red-500 text-sm mt-1">{errors.discount}</p>
@@ -312,7 +340,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     earlyAccess: e.target.checked,
                   })
                 }
-                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                disabled={loading}
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
               />
             </div>
 
@@ -329,7 +358,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     category: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (
@@ -355,10 +385,11 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     ...storeSettings,
                     platform: e.target.value,
                     mobileType: "",
-                    webglDemoZip: null, // Reset demo ZIP when platform changes
+                    webglDemoZip: null,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               >
                 <option value="">Select a platform</option>
                 {platforms.map((plat) => (
@@ -386,7 +417,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                       mobileType: e.target.value,
                     })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                  disabled={loading}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
                 >
                   <option value="">Select mobile type</option>
                   {mobileTypes.map((type) => (
@@ -413,7 +445,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                   type="file"
                   accept=".zip"
                   onChange={handleDemoZipChange}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                  disabled={loading}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
                 />
               </div>
             )}
@@ -431,7 +464,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     description: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
                 rows="4"
               />
               {errors.description && (
@@ -454,7 +488,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     technicalDetail: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
                 rows="4"
               />
               {errors.technicalDetail && (
@@ -478,7 +513,8 @@ function CreateGamesForm({ val, onOpen, onClose }) {
                     keywords: e.target.value,
                   })
                 }
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                disabled={loading}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 disabled:opacity-50"
               />
               {errors.keywords && (
                 <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>
@@ -486,12 +522,18 @@ function CreateGamesForm({ val, onOpen, onClose }) {
             </div>
           </div>
 
+          {/* Submit Error */}
+          {errors.submit && (
+            <p className="text-red-500 text-sm mt-2">{errors.submit}</p>
+          )}
+
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Create New Game
+              {loading ? "Creating..." : "Create New Game"}
             </button>
           </div>
         </form>

@@ -17,7 +17,9 @@ function DetailPage() {
   const [relatedItems, setRelatedItems] = useState([]);
   const [storeItems, setStoreItems] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [threads, setThreads] = useState([]);
+  const [loadingCritical, setLoadingCritical] = useState(true); // For critical data
+  const [loadingNonCritical, setLoadingNonCritical] = useState(true); // For non-critical data
   const [error, setError] = useState(null);
   const { user } = useAuthStore();
   const type = location.state;
@@ -25,92 +27,94 @@ function DetailPage() {
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState("");
 
+  // Fetch critical data (item details) first
   useEffect(() => {
-    const fetchItemDetails = async () => {
+    const fetchCriticalData = async () => {
       try {
-        if (!type || !id) {
-          throw new Error("Missing item type or ID");
-        }
-        let endpoint;
-        if (type === "Asset") {
-          endpoint = `/users/get-asset-detail/${id}`;
-        } else if (type === "Gig") {
-          endpoint = `/users/get-gig-detail/${id}`;
-        } else if (type === "Game") {
-          endpoint = `/users/get-game-detail/${id}`;
-        } else {
-          throw new Error("Invalid item type");
-        }
+        if (!type || !id) throw new Error("Missing item type or ID");
+        const endpoint =
+          type === "Asset"
+            ? `/users/get-asset-detail/${id}`
+            : type === "Gig"
+            ? `/users/get-gig-detail/${id}`
+            : `/users/get-game-detail/${id}`;
+        if (!endpoint) throw new Error("Invalid item type");
+
         const response = await apiClient.get(endpoint);
         setItem(response.data);
-
-        const fetchRelatedItems = async () => {
-          let relatedEndpoint;
-          if (type === "Asset") {
-            relatedEndpoint = "/users/assets";
-          } else if (type === "Gig") {
-            relatedEndpoint = "/users/gigs";
-          } else if (type === "Game") {
-            relatedEndpoint = "/users/games";
-          }
-          const relatedResponse = await apiClient.get(relatedEndpoint);
-          const filteredItems = relatedResponse.data[
-            type === "Asset" ? "assets" : type === "Gig" ? "gigs" : "games"
-          ]
-            .filter((i) => i._id !== id)
-            .slice(0, 4);
-          setRelatedItems(filteredItems);
-        };
-
-        const fetchStoreItems = async () => {
-          let storeEndpoint;
-          if (type === "Asset") {
-            storeEndpoint = `/users/get-stores-assets/${response.data.store._id}`;
-          } else if (type === "Gig") {
-            storeEndpoint = `/users/get-stores-gigs/${response.data.store._id}`;
-          } else if (type === "Game") {
-            storeEndpoint = `/users/get-stores-games/${response.data.store._id}`;
-          }
-          const storeResponse = await apiClient.get(storeEndpoint);
-          const filteredStoreItems = storeResponse.data[
-            type === "Asset" ? "assets" : type === "Gig" ? "gigs" : "games"
-          ]
-            .filter((i) => i._id !== id)
-            .slice(0, 4);
-          setStoreItems(filteredStoreItems);
-        };
-
-        const fetchReviews = async () => {
-          const reviewResponse = await apiClient.get(
-            `/users/reviews/${type.toLowerCase()}/${id}`
-          );
-          setReviews(reviewResponse.data.reviews);
-        };
-
-        await Promise.all([
-          fetchRelatedItems(),
-          fetchStoreItems(),
-          fetchReviews(),
-        ]);
       } catch (error) {
         setError("Failed to fetch item details. Please try again later.");
         console.error(error);
       } finally {
-        setLoading(false);
+        setLoadingCritical(false);
       }
     };
 
-    fetchItemDetails();
+    fetchCriticalData();
   }, [id, type]);
 
-  const handleAddToCart = async () => {
-    if (!user) {
-      alert("Please log in to add items to your cart.");
-      return;
-    }
+  // Fetch non-critical data (related items, store items, reviews, threads) after critical data
+  useEffect(() => {
+    if (!item) return; // Wait until item is loaded
 
+    const fetchNonCriticalData = async () => {
+      try {
+        const [relatedResponse, storeResponse, reviewResponse, chatResponse] =
+          await Promise.all([
+            apiClient.get(
+              type === "Asset"
+                ? "/users/assets"
+                : type === "Gig"
+                ? "/users/gigs"
+                : "/users/games"
+            ),
+            apiClient.get(
+              type === "Asset"
+                ? `/users/get-stores-assets/${item.store._id}`
+                : type === "Gig"
+                ? `/users/get-stores-gigs/${item.store._id}`
+                : `/users/get-stores-games/${item.store._id}`
+            ),
+            apiClient.get(`/users/reviews/${type.toLowerCase()}/${id}`),
+            apiClient.get("/users/chats"),
+          ]);
+
+        // Related Items
+        const filteredRelatedItems = relatedResponse.data[
+          type === "Asset" ? "assets" : type === "Gig" ? "gigs" : "games"
+        ]
+          .filter((i) => i._id !== id)
+          .slice(0, 4);
+        setRelatedItems(filteredRelatedItems);
+
+        // Store Items
+        const filteredStoreItems = storeResponse.data[
+          type === "Asset" ? "assets" : type === "Gig" ? "gigs" : "games"
+        ]
+          .filter((i) => i._id !== id)
+          .slice(0, 4);
+        setStoreItems(filteredStoreItems);
+
+        // Reviews
+        setReviews(reviewResponse.data.reviews);
+
+        // Chat Threads
+        setThreads(chatResponse.data.threads);
+      } catch (error) {
+        console.error("Error fetching non-critical data:", error);
+        // Optionally set a non-critical error state if you want to display it
+      } finally {
+        setLoadingNonCritical(false);
+      }
+    };
+
+    fetchNonCriticalData();
+  }, [item, id, type]);
+
+  const handleAddToCart = async () => {
+    if (!user) return alert("Please log in to add items to your cart.");
     try {
-      const response = await apiClient.post("/users/add-to-cart", {
+      await apiClient.post("/users/add-to-cart", {
         userId: user.id,
         itemId: id,
         type: type,
@@ -118,7 +122,6 @@ function DetailPage() {
       });
       alert("Item added to cart successfully!");
     } catch (error) {
-      console.error("Error adding to cart:", error);
       const errorMessage =
         error.response?.data?.message || "Failed to add item to cart.";
       alert(errorMessage);
@@ -133,14 +136,10 @@ function DetailPage() {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!user) {
-      alert("Please log in to submit a review.");
-      return;
-    }
-    if (newRating < 1 || newRating > 5) {
-      alert("Please select a rating between 1 and 5 stars.");
-      return;
-    }
+    if (!user) return alert("Please log in to submit a review.");
+    if (newRating < 1 || newRating > 5)
+      return alert("Please select a rating between 1 and 5 stars.");
+
     try {
       const response = await apiClient.post("/users/reviews", {
         itemId: id,
@@ -148,7 +147,7 @@ function DetailPage() {
         rating: newRating,
         comment: newComment,
       });
-      setReviews([...reviews, response.data.review]);
+      setReviews((prev) => [...prev, response.data.review]);
       setNewRating(0);
       setNewComment("");
       alert("Review submitted successfully!");
@@ -158,32 +157,68 @@ function DetailPage() {
       );
       setItem(updatedItem.data);
     } catch (error) {
-      console.error("Error submitting review:", error);
       const errorMessage =
         error.response?.data?.message || "Failed to submit review.";
       alert(errorMessage);
     }
   };
 
-  const handleChatWithFreelancer = () => {
-    if (!user) {
-      alert("Please log in to chat with the freelancer.");
-      return;
+  const handleChatWithFreelancer = async () => {
+    if (!user) return alert("Please log in to chat with the freelancer.");
+
+    try {
+      const existingThread = threads.find((thread) => thread.gigId === id);
+      if (existingThread) {
+        navigate(`/chat/${existingThread._id}`, {
+          state: {
+            storeId: item.store._id,
+            storeName: item.store.name,
+            receiverId: item.store.user,
+            chatId: existingThread._id,
+            gigId: item._id,
+            type: "Gig",
+          },
+        });
+      } else {
+        const defaultMessage = `Hi, I'm interested in your gig: ${item.productName}. Let's discuss!`;
+        const response = await apiClient.post("/users/chats", {
+          gigId: id,
+          content: defaultMessage,
+          senderId: user.id,
+          receiverId: item.store.user,
+        });
+
+        const newChatId = response.data.chatId;
+        if (newChatId) {
+          const updatedThreads = await apiClient.get("/users/chats");
+          setThreads(updatedThreads.data.threads);
+          navigate(`/chat/${newChatId}`, {
+            state: {
+              storeId: item.store._id,
+              storeName: item.store.name,
+              receiverId: item.store.user,
+              chatId: newChatId,
+              gigId: item._id,
+              type: "Gig",
+            },
+          });
+        } else {
+          throw new Error("Failed to get chat ID from response.");
+        }
+      }
+    } catch (error) {
+      console.error("Error initiating chat:", error);
+      alert("Failed to start chat. Please try again later.");
     }
-    // Navigate to chat page with gig ID and store info
-    navigate(`/chat/${id}`, {
-      state: {
-        storeId: item.store._id,
-        storeName: item.store.name,
-        type: "Gig",
-      },
-    });
   };
 
-  if (loading) {
+  if (loadingCritical) {
     return (
-      <div className="text-white text-center py-10">
-        Loading item details...
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading item details...</p>
+        </div>
       </div>
     );
   }
@@ -195,7 +230,6 @@ function DetailPage() {
   if (!item) {
     return <div className="text-white text-center py-10">Item not found.</div>;
   }
-  console.log(item);
 
   return (
     <div>
@@ -274,7 +308,6 @@ function DetailPage() {
                     </option>
                   ))}
                 </select>
-
                 <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                   {item.packages.map((pkg) => (
                     <div
@@ -386,21 +419,32 @@ function DetailPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-[65%_35%] mt-5">
         <div>
-          <TabbedDetails
-            description={item.description}
-            keywords={item.keywords}
-            store={item.store}
-            reviews={reviews}
-            setReviews={setReviews}
-            handleSubmitReview={handleSubmitReview}
-            newRating={newRating}
-            setNewRating={setNewRating}
-            newComment={newComment}
-            setNewComment={setNewComment}
-            user={user}
-            itemId={id}
-            itemType={type.toLowerCase()}
-          />
+          {loadingNonCritical ? (
+            <div className="p-6 bg-gray-800 rounded-lg shadow-lg">
+              <div className="h-6 bg-gray-700 rounded w-1/3 mb-4 animate-pulse"></div>
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-700 rounded w-full animate-pulse"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse"></div>
+                <div className="h-4 bg-gray-700 rounded w-1/2 animate-pulse"></div>
+              </div>
+            </div>
+          ) : (
+            <TabbedDetails
+              description={item.description}
+              keywords={item.keywords}
+              store={item.store}
+              reviews={reviews}
+              setReviews={setReviews}
+              handleSubmitReview={handleSubmitReview}
+              newRating={newRating}
+              setNewRating={setNewRating}
+              newComment={newComment}
+              setNewComment={setNewComment}
+              user={user}
+              itemId={id}
+              itemType={type.toLowerCase()}
+            />
+          )}
         </div>
         <div></div>
       </div>
@@ -409,22 +453,60 @@ function DetailPage() {
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
           You Might Also Like
         </h3>
-        <div className="grid md:grid-cols-4 gap-4 mx-10">
-          {relatedItems.map((card, index) => (
-            <Card key={index} item={card} />
-          ))}
-        </div>
+        {loadingNonCritical ? (
+          <div className="grid md:grid-cols-4 gap-4 mx-10">
+            {Array(4)
+              .fill()
+              .map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 h-64 rounded-lg animate-pulse"
+                >
+                  <div className="h-40 bg-gray-700 rounded-t-lg"></div>
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-4 gap-4 mx-10">
+            {relatedItems.map((card, index) => (
+              <Card key={index} item={card} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
           More from Same Store
         </h3>
-        <div className="grid md:grid-cols-4 gap-4 mx-10">
-          {storeItems.map((card, index) => (
-            <Card key={index} item={card} />
-          ))}
-        </div>
+        {loadingNonCritical ? (
+          <div className="grid md:grid-cols-4 gap-4 mx-10">
+            {Array(4)
+              .fill()
+              .map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 h-64 rounded-lg animate-pulse"
+                >
+                  <div className="h-40 bg-gray-700 rounded-t-lg"></div>
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-4 gap-4 mx-10">
+            {storeItems.map((card, index) => (
+              <Card key={index} item={card} />
+            ))}
+          </div>
+        )}
       </div>
 
       <Footer />

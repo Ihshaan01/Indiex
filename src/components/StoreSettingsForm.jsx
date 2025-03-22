@@ -51,7 +51,7 @@ const StoreSettingsForm = ({ store, onSubmit, loading }) => {
             <label className="text-gray-400">Store Name</label>
             <input
               type="text"
-              value={storeSettings.name}
+              value={storeSettings?.name || ""}
               onChange={(e) =>
                 setStoreSettings((prev) => ({
                   ...prev,
@@ -68,7 +68,7 @@ const StoreSettingsForm = ({ store, onSubmit, loading }) => {
           <div>
             <label className="text-gray-400">Store Description</label>
             <textarea
-              value={storeSettings.description}
+              value={storeSettings?.description || ""}
               onChange={(e) =>
                 setStoreSettings((prev) => ({
                   ...prev,

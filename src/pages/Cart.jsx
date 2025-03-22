@@ -86,7 +86,7 @@ function Cart() {
     return total + itemPrice;
   }, 0);
 
-  const itemsCount = items.length; // Simply count the number of items
+  const itemsCount = items.length;
 
   const savings = items.reduce((total, item) => {
     const discountAmount = (item.price * (item.discount || 0)) / 100;
@@ -97,12 +97,20 @@ function Cart() {
     alert("Proceeding to checkout!");
   };
 
-  if (loading) {
-    return <div className="text-white text-center">Loading cart...</div>;
+  // Full-page spinner for initial load
+  if (loading && items.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-t-4 border-t-purple-500 border-gray-700 rounded-full animate-spin"></div>
+          <p className="text-white mt-4 text-lg">Loading your cart...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    return <div className="text-red-500 text-center py-10">{error}</div>;
   }
 
   return (
@@ -121,22 +129,30 @@ function Cart() {
               </p>
             </div>
             <div className="my-3 w-full">
-              {items.map((item, index) => (
-                <CartItem
-                  key={index}
-                  item={item}
-                  onRemove={() => handleRemoveItem(index)}
-                />
-              ))}
+              {loading ? (
+                <SkeletonCartItems count={3} />
+              ) : (
+                items.map((item, index) => (
+                  <CartItem
+                    key={index}
+                    item={item}
+                    onRemove={() => handleRemoveItem(index)}
+                  />
+                ))
+              )}
             </div>
           </div>
           <div className="flex justify-center items-center shadow-md max-h-96 bg-[#171f29] rounded">
-            <CartSummary
-              subtotal={subtotal}
-              itemsCount={itemsCount}
-              savings={savings}
-              onCheckout={handleCheckout}
-            />
+            {loading ? (
+              <SkeletonCartSummary />
+            ) : (
+              <CartSummary
+                subtotal={subtotal}
+                itemsCount={itemsCount}
+                savings={savings}
+                onCheckout={handleCheckout}
+              />
+            )}
           </div>
         </div>
       ) : (
@@ -158,6 +174,44 @@ function Cart() {
         </div>
       </div>
       <Footer />
+    </div>
+  );
+}
+
+// Skeleton component for cart items
+function SkeletonCartItems({ count }) {
+  return (
+    <div className="w-full space-y-4">
+      {Array(count)
+        .fill()
+        .map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center p-4 bg-gray-800 rounded-lg animate-pulse"
+          >
+            <div className="w-20 h-20 bg-gray-700 rounded mr-4"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/4"></div>
+            </div>
+          </div>
+        ))}
+    </div>
+  );
+}
+
+// Skeleton component for cart summary
+function SkeletonCartSummary() {
+  return (
+    <div className="w-full p-6 space-y-4 animate-pulse">
+      <div className="h-6 bg-gray-700 rounded w-1/2 mx-auto"></div>
+      <div className="space-y-2">
+        <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+        <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+      </div>
+      <div className="h-10 bg-gray-700 rounded w-full"></div>
     </div>
   );
 }
