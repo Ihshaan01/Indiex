@@ -163,7 +163,7 @@ function Cart() {
         </div>
       )}
 
-      <div className="my-10">
+      {/* <div className="my-10">
         <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
           You Might Also Like
         </h3>
@@ -172,7 +172,7 @@ function Cart() {
             <Card key={index} item={card} />
           ))}
         </div>
-      </div>
+      </div> */}
       <Footer />
     </div>
   );
