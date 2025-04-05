@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
 
-const SignUpModal = ({ visible, onClose }) => {
+const SignUpModal = ({ visible, onClose, switchToSignIn }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,7 +41,7 @@ const SignUpModal = ({ visible, onClose }) => {
       {/* Modal Container */}
       <div className="flex w-11/12 max-w-4xl h-5/6 bg-gray-800  rounded-lg overflow-hidden">
         {/* Promotional Section */}
-        <div className="flex-1 bg-red-500 relative">
+        <div className="md:flex hidden flex-1 bg-red-500 relative">
           {/* <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -63,10 +63,13 @@ const SignUpModal = ({ visible, onClose }) => {
             Sign Up to Your Account
           </h2>
           <p className="text-sm text-gray-300 mb-6">
-            Have an account?
-            <span className="text-blue-400 underline cursor-pointer">
+            Have an account?{" "}
+            <button
+              onClick={switchToSignIn}
+              className="text-blue-500 underline cursor-pointer"
+            >
               Sign In here
-            </span>
+            </button>
           </p>
           <form onSubmit={handleSignUp}>
             <input

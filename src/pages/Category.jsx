@@ -193,14 +193,14 @@ export default function Category() {
             </div>
 
             {/* Filters and Sorting */}
-            <div className="flex justify-between items-center mb-5">
-              <div className="flex flex-col">
-                <label className="mb-2 text-lg">Filters</label>
-                <div className="flex gap-3">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-5">
+              <div className="flex flex-col w-full">
+                <label className="mb-2 text-base md:text-lg">Filters</label>
+                <div className="flex flex-col xs:flex-row gap-2 w-full">
                   <select
                     value={priceFilter}
                     onChange={(e) => setPriceFilter(e.target.value)}
-                    className="bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full xs:w-1/2 bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                   >
                     <option value="Price">Price</option>
                     <option value="Free">Free</option>
@@ -211,7 +211,7 @@ export default function Category() {
                   <select
                     value={ratingFilter}
                     onChange={(e) => setRatingFilter(e.target.value)}
-                    className="bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full xs:w-1/2 bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                   >
                     <option value="Rating">Rating</option>
                     <option value="1 Star">1 Star</option>
@@ -222,13 +222,13 @@ export default function Category() {
                   </select>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <div className="flex flex-col">
-                  <label className="mb-2 text-lg">Sort by</label>
+              <div className="flex flex-col xs:flex-row gap-2 w-full md:w-auto">
+                <div className="flex flex-col w-full xs:w-1/2">
+                  <label className="mb-2 text-base md:text-lg">Sort by</label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                   >
                     <option value="Relevance">Relevance</option>
                     <option value="Price: Low to High">
@@ -239,15 +239,15 @@ export default function Category() {
                     </option>
                   </select>
                 </div>
-                <div className="flex flex-col">
-                  <label className="mb-2 text-lg">Results</label>
+                <div className="flex flex-col w-full xs:w-1/2">
+                  <label className="mb-2 text-base md:text-lg">Results</label>
                   <select
                     value={resultsPerPage}
                     onChange={(e) => {
                       setResultsPerPage(parseInt(e.target.value));
                       setCurrentPage(1);
                     }}
-                    className="bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-800 text-white p-2 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                   >
                     <option value="10">10</option>
                     <option value="20">20</option>

@@ -235,13 +235,13 @@ const Dashboard = () => {
   return (
     <>
       <Header />
-      <div className="flex bg-gray-900 text-white border-t-2 border-gray-800">
+      <div className="flex flex-col md:flex-row bg-gray-900 text-white border-t-2 border-gray-800">
         {/* Sidebar */}
-        <aside className="w-64 bg-gray-800 p-4">
+        <aside className="w-full md:w-64 bg-gray-800 p-4 fixed md:relative hidden md:top-0 z-40 border-t md:border-t-0 border-gray-700">
           <div className="flex items-center space-x-2 mb-6">
             <span className="text-xl font-bold">Dashboard</span>
           </div>
-          <nav className="space-y-2">
+          <nav className="flex md:block justify-around space-y-2">
             <a
               href="#assets"
               className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-700"
@@ -270,7 +270,7 @@ const Dashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 example">
+        <main className="flex-1 p-4 md:p-6 mt-16 md:mt-0 overflow-x-hidden">
           {/* Assets Section */}
           <Section
             title="Assets"
@@ -308,10 +308,12 @@ const Dashboard = () => {
           />
 
           {/* Store Settings Section */}
-          <section id="store-settings" className="mb-12">
-            <div className="min-h-screen bg-gray-800 text-white p-8">
+          <section id="store-settings" className="mb-12 px-4 md:px-8">
+            <div className="min-h-screen bg-gray-800 text-white p-4 md:p-8">
               <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Store Settings</h1>
+                <h1 className="text-2xl md:text-3xl font-bold mb-6">
+                  Store Settings
+                </h1>
                 <StoreSettingsForm
                   store={store}
                   onSubmit={store ? handleEditStore : handleCreateStore}

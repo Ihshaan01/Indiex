@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiSearch, CiShoppingCart } from "react-icons/ci";
 import { IoChatbubblesOutline, IoMenu, IoPersonOutline } from "react-icons/io5";
 import { IconContext } from "react-icons";
@@ -20,6 +20,7 @@ const Header = () => {
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState(null);
   const { token, user, setUser, clearToken } = useAuthStore();
 
   const categories = [
@@ -119,12 +120,22 @@ const Header = () => {
       setSearchOpen(false);
     }
   };
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize(); // check on mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   return (
     <header
-      className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 px-6 shadow-lg sticky top-0 z-50"
+      className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 md:px-6 px-2 shadow-lg sticky top-0 z-50"
       onMouseLeave={() => {
-        setExpandedCategory(null);
-        setMobileMenuVisible(false);
+        if (window.innerWidth >= 768) {
+          setExpandedCategory(null);
+          setMobileMenuVisible(false);
+        }
       }}
     >
       <div className="container mx-auto">
@@ -136,25 +147,25 @@ const Header = () => {
             Indie X
           </Link>
           <IconContext.Provider value={{ color: "white", size: "1.5em" }}>
-            <div className="flex items-center gap-4">
-              <div className="relative">
+            <div className="flex items-center md:gap-4">
+              <div className="flex items-center">
                 <button
                   onClick={() => setSearchOpen(!searchOpen)}
                   className="p-2 rounded-full hover:bg-gray-700"
                 >
                   <CiSearch />
                 </button>
-                <form onSubmit={handleSearch}>
+                <form onSubmit={handleSearch} className="flex-1">
                   <input
                     type="text"
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`absolute right-0 top-12 w-64 p-2 bg-gray-800 text-white rounded-md shadow-lg transition-all duration-300 ${
+                    className={`fixed md:absolute top-16 right-4 left-4 md:left-auto md:right-0 w-[calc(100%-2rem)] md:w-64 p-2 bg-gray-800 text-white rounded-md shadow-lg transition-all duration-300 ${
                       searchOpen
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 -translate-y-2 pointer-events-none"
-                    }`}
+                    } z-50`}
                   />
                 </form>
               </div>
@@ -218,7 +229,7 @@ const Header = () => {
         <div
           className={`absolute right-6 mt-2 w-48 bg-gray-800 rounded-lg shadow-xl transition-all duration-300 ease-in-out ${
             userModalVisible
-              ? "opacity-100 translate-y-0"
+              ? "opacity-100 translate-y-0 z-10"
               : "opacity-0 -translate-y-2 pointer-events-none"
           }`}
         >
@@ -230,20 +241,6 @@ const Header = () => {
                 onClick={() => setUserModalVisible(false)}
               >
                 Profile
-              </Link>
-              <Link
-                to="/my-assets-games"
-                className="block px-4 py-2 text-sm hover:bg-gray-700 hover:text-white transition-colors duration-200"
-                onClick={() => setUserModalVisible(false)}
-              >
-                My Assets & Games
-              </Link>
-              <Link
-                to="/order-history"
-                className="block px-4 py-2 text-sm hover:bg-gray-700 hover:text-white transition-colors duration-200"
-                onClick={() => setUserModalVisible(false)}
-              >
-                Order History
               </Link>
               <button
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 hover:text-white transition-colors duration-200"
@@ -309,23 +306,42 @@ const Header = () => {
           )}
         </nav>
 
-        {/* Mobile Navigation */}
         <nav
           className={`md:hidden mt-4 bg-gray-800 rounded-lg p-4 transition-all duration-300 ${
             mobileMenuVisible
-              ? "max-h-96 opacity-100"
+              ? "max-h-[1000px] opacity-100"
               : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
           {categories.map((category, index) => (
-            <Link
-              key={index}
-              to={`/Category/${category.name}`}
-              className="block py-2 text-md font-semibold hover:text-gray-300 transition-colors duration-200"
-              onClick={() => setMobileMenuVisible(false)}
-            >
-              {category.name}
-            </Link>
+            <div key={index}>
+              <button
+                onClick={() => {
+                  setExpandedMobileCategory(
+                    expandedMobileCategory === index ? null : index
+                  );
+                }}
+                className="w-full text-left py-2 text-md font-semibold hover:text-gray-300 transition-colors duration-200"
+              >
+                {category.name}
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  expandedMobileCategory === index ? "max-h-[500px]" : "max-h-0"
+                }`}
+              >
+                {category.subCategories.map((subCat, subIndex) => (
+                  <Link
+                    key={subIndex}
+                    to={`/Category/${category.name}/${subCat.name}`}
+                    onClick={() => setMobileMenuVisible(false)}
+                    className="block py-2 pl-4 text-sm text-gray-300 hover:text-white"
+                  >
+                    {subCat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
           {token && (
             <button
@@ -356,8 +372,12 @@ const Header = () => {
                       key={subIndex}
                       to={`/Category/${categories[expandedCategory].name}/${subCat.name}`}
                       className="px-4 py-2 text-sm font-medium hover:bg-gray-800 hover:text-white rounded-md transition-all duration-200"
-                      onMouseEnter={() => setHoveredSubCategory(subCat.image)}
-                      onMouseLeave={() => setHoveredSubCategory(null)}
+                      onMouseEnter={() => {
+                        if (!isMobile) setHoveredSubCategory(subCat.image);
+                      }}
+                      onMouseLeave={() => {
+                        if (!isMobile) setHoveredSubCategory(null);
+                      }}
                     >
                       {subCat.name}
                     </Link>
@@ -382,10 +402,18 @@ const Header = () => {
       <SignUpModal
         visible={signUpModalVisible}
         onClose={() => setSignUpModalVisible(false)}
+        switchToSignIn={() => {
+          setSignUpModalVisible(false);
+          setSignInModalVisible(true);
+        }}
       />
       <SignInModal
         visible={signInModalVisible}
         onClose={() => setSignInModalVisible(false)}
+        switchToSignUp={() => {
+          setSignInModalVisible(false);
+          setSignUpModalVisible(true);
+        }}
       />
       <Tooltip id="Search" place="bottom" />
       <Tooltip id="Cart" place="bottom" />

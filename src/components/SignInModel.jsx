@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
 
-const SignInModal = ({ visible, onClose }) => {
+const SignInModal = ({ visible, onClose, switchToSignUp }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -40,7 +40,7 @@ const SignInModal = ({ visible, onClose }) => {
       }`}
     >
       <div className="flex w-11/12 max-w-4xl h-5/6 bg-gray-800 rounded-lg overflow-hidden">
-        <div className="flex-1 bg-red-500 relative">
+        <div className="md:flex flex-1 bg-red-500 relative hidden">
           <div className="absolute inset-0 flex flex-col justify-center items-center text-white bg-black bg-opacity-30">
             <h1 className="text-xl font-bold mb-2">LIMITED TIME OFFER</h1>
             <h2 className="text-4xl font-bold mb-4">45% OFF</h2>
@@ -55,9 +55,12 @@ const SignInModal = ({ visible, onClose }) => {
           </h2>
           <p className="text-sm text-gray-300 mb-6">
             Don't have an account?{" "}
-            <span className="text-blue-400 underline cursor-pointer">
+            <button
+              onClick={switchToSignUp}
+              className="text-blue-400 underline cursor-pointer"
+            >
               Sign Up here
-            </span>
+            </button>
           </p>
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
