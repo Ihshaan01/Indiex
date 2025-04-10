@@ -125,12 +125,25 @@ function CreateGamesForm({ val, onOpen, onClose }) {
 
   const handleDemoZipChange = (e) => {
     const file = e.target.files[0];
+  
+    // Check if a file is selected and if it's a .zip file
     if (file) {
-      setStoreSettings({ ...storeSettings, webglDemoZip: file });
+      const fileType = file.type;
+      const fileSize = file.size;
+      
+      // Limit: Only allow .zip files and size less than 10MB
+      if (fileType === 'application/zip' && fileSize <= 10 * 1024 * 1024) {
+        setStoreSettings({ ...storeSettings, webglDemoZip: file });
+      } else {
+        // Handle invalid file type or size
+        alert('Invalid file type or file is too large. Please upload a .zip file under 10MB.');
+        setStoreSettings({ ...storeSettings, webglDemoZip: null });
+      }
     } else {
       setStoreSettings({ ...storeSettings, webglDemoZip: null });
     }
   };
+  
 
   return (
     <Dialog open={val} onOpenChange={onOpen} onClose={onClose}>

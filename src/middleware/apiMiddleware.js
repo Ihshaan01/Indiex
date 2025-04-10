@@ -4,7 +4,7 @@ import { baseUrl } from "../utils/Constants";
 
 // Axios instance with middleware
 const apiClient = axios.create({
-  baseURL: baseUrl, // Replace with your backend URL
+  baseURL: "https://backend-main-zeta.vercel.app/api", // Replace with your backend URL
 });
 // "https://backend-main-zeta.vercel.app/api"
 // "http://localhost:5000/api"

@@ -105,12 +105,21 @@ function CreateAssetForm({ val, onOpen, onClose }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setStoreSettings({ ...storeSettings, zipFile: file });
+      // Check file size (9 MB limit)
+      const fileSizeInMB = file.size / (1024 * 1024); // Convert size from bytes to MB
+      if (fileSizeInMB > 9) {
+        setErrors({ ...errors, zipFile: "File size must be less than 9 MB" });
+        setStoreSettings({ ...storeSettings, zipFile: null }); // Reset zipFile if invalid
+      } else {
+        setStoreSettings({ ...storeSettings, zipFile: file });
+        setErrors({ ...errors, zipFile: "" }); // Clear previous error
+      }
     } else {
       setStoreSettings({ ...storeSettings, zipFile: null });
       setErrors({ ...errors, zipFile: "Please upload a valid ZIP file" });
     }
   };
+  
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
