@@ -147,7 +147,7 @@ function CreateGamesForm({ val, onOpen, onClose }) {
 
   return (
     <Dialog open={val} onOpenChange={onOpen} onClose={onClose}>
-      <DialogContent>
+      {store?._id?  <DialogContent>
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-gray-800">Create New Game</h3>
         </div>
@@ -550,7 +550,13 @@ function CreateGamesForm({ val, onOpen, onClose }) {
             </button>
           </div>
         </form>
-      </DialogContent>
+      </DialogContent> :<DialogContent className="text-center p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <h3 className="text-2xl font-bold text-gray-800">Create Store First</h3>
+              <p className="text-gray-600">You need to create a store before accessing this feature.</p>
+              </div>
+          </DialogContent>}
+     
     </Dialog>
   );
 }

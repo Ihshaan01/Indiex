@@ -13,7 +13,7 @@ const HeroBanner = ({ type }) => {
         <img
           src={type == "short" ? banner : saleBanner}
           alt="Hero Banner"
-          className="w-full h-full object-contain md:object-fill "
+          className="w-full h-full object-cover "
         />
         {/* <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <h1 className="text-white text-4xl font-bold">Welcome to Indie X</h1>

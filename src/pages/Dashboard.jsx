@@ -170,8 +170,7 @@ const Dashboard = () => {
     fetchAllData();
   }, [store?._id, loadingCritical]);
 
-  const handleCreateStore = async (e) => {
-    e.preventDefault();
+  const handleCreateStore = async () => {
     const userId = user?.id;
     const { name, description, image } = storeSettings;
     try {
@@ -194,8 +193,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEditStore = async (e) => {
-    e.preventDefault();
+  const handleEditStore = async () => {
     const formData = new FormData();
     formData.append("storeId", store?._id);
     formData.append("name", storeSettings?.name);

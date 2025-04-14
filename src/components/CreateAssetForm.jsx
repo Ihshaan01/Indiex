@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent } from "./Dialog";
 import apiClient from "../middleware/apiMiddleware";
 import useAuthStore from "../store/authStore";
+import Button from "./Button";
 
 function CreateAssetForm({ val, onOpen, onClose }) {
   const [storeSettings, setStoreSettings] = useState({
@@ -134,7 +135,7 @@ function CreateAssetForm({ val, onOpen, onClose }) {
 
   return (
     <Dialog open={val} onOpenChange={onOpen} onClose={onClose}>
-      <DialogContent>
+      {store?._id ? ( <DialogContent>
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-gray-800">Create New Asset</h3>
         </div>
@@ -428,7 +429,14 @@ function CreateAssetForm({ val, onOpen, onClose }) {
             </button>
           </div>
         </form>
-      </DialogContent>
+      </DialogContent>) : 
+      <DialogContent className="text-center p-8">
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <h3 className="text-2xl font-bold text-gray-800">Create Store First</h3>
+        <p className="text-gray-600">You need to create a store before accessing this feature.</p>
+        </div>
+    </DialogContent> }
+     
     </Dialog>
   );
 }
