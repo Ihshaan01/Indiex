@@ -170,17 +170,18 @@ const Dashboard = () => {
     fetchAllData();
   }, [store?._id, loadingCritical]);
 
-  const handleCreateStore = async () => {
+  const handleCreateStore = async (storeSettings) => {
     const userId = user?.id;
-    const { name, description, image } = storeSettings;
     try {
       setLoadingCritical(true);
-      const response = await apiClient.post("/users/store", {
-        userId,
-        name,
-        description,
-        image,
-      });
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("name", storeSettings?.name);
+      formData.append("description", storeSettings?.description);
+      formData.append("image", storeSettings?.image);
+      
+      const response = await apiClient.post("/users/store",formData);
+      console.log(response.data);
       if (response.status === 201) {
         setStoreSettings(response.data?.store);
         setStorePreview(response.data?.store?.image);
@@ -193,7 +194,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleEditStore = async () => {
+  const handleEditStore = async (storeSettings) => {
     const formData = new FormData();
     formData.append("storeId", store?._id);
     formData.append("name", storeSettings?.name);

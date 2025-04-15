@@ -9,12 +9,12 @@ const Card = ({ item }) => {
         <img
           className="w-full h-48 object-cover"
           src={item?.images[0]}
-          alt={item?.productName}
+          alt={item?.productName||item?.name}
         />
       </div>
       <div className="p-4">
         <h3 className="text-lg font-bold text-white mb-2">
-          {item?.productName}
+          {item?.productName||item?.name}
         </h3>
         <div className="flex items-center">
           <StarRating rating={item.ratingAverage || 0} />

@@ -194,9 +194,9 @@ export default function Category() {
 
             {/* Filters and Sorting */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-5">
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full md:w-1/2 ">
                 <label className="mb-2 text-base md:text-lg">Filters</label>
-                <div className="flex flex-col xs:flex-row gap-2 w-full">
+                <div className="flex flex-col md:flex-row xs:flex-row gap-2 w-full">
                   <select
                     value={priceFilter}
                     onChange={(e) => setPriceFilter(e.target.value)}
@@ -222,7 +222,7 @@ export default function Category() {
                   </select>
                 </div>
               </div>
-              <div className="flex flex-col xs:flex-row gap-2 w-full md:w-auto">
+              <div className="flex flex-col md:flex-row xs:flex-row gap-2 w-full md:w-auto">
                 <div className="flex flex-col w-full xs:w-1/2">
                   <label className="mb-2 text-base md:text-lg">Sort by</label>
                   <select
