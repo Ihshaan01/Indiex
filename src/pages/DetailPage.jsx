@@ -44,7 +44,7 @@ function DetailPage() {
 
         const response = await apiClient.get(endpoint);
         setItem(response.data);
-        setSelectedPackage(response.data.packages[0])
+        setSelectedPackage(response?.data?.packages[0]||null)
       } catch (error) {
         setError("Failed to fetch item details. Please try again later.");
         console.error(error);
