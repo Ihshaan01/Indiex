@@ -26,6 +26,8 @@ function DetailPage() {
 
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState("");
+  const [selectedPackage, setSelectedPackage] = useState("");
+
 
   // Fetch critical data (item details) first
   useEffect(() => {
@@ -42,6 +44,7 @@ function DetailPage() {
 
         const response = await apiClient.get(endpoint);
         setItem(response.data);
+        setSelectedPackage(response.data.packages[0])
       } catch (error) {
         setError("Failed to fetch item details. Please try again later.");
         console.error(error);
@@ -236,6 +239,7 @@ function DetailPage() {
   if (!item) {
     return <div className="text-white text-center py-10">Item not found.</div>;
   }
+  console.log(selectedPackage);
 
   return (
     <div>
@@ -303,9 +307,9 @@ function DetailPage() {
                   className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   defaultValue={item.packages[0]?.name.toLowerCase()}
                   onChange={(e) => {
-                    const selectedPackage = item.packages.find(
+                    setSelectedPackage(item.packages.find(
                       (pkg) => pkg.name.toLowerCase() === e.target.value
-                    );
+                    )) 
                   }}
                 >
                   {item.packages.map((pkg) => (
@@ -315,24 +319,21 @@ function DetailPage() {
                   ))}
                 </select>
                 <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                  {item.packages.map((pkg) => (
-                    <div
-                      key={pkg.name}
+                 {selectedPackage &&(   <div
+                      key={selectedPackage.name}
                       className="text-white transition-opacity duration-200"
                       style={{
                         display:
-                          pkg.name.toLowerCase() ===
-                          item.packages[0]?.name.toLowerCase()
-                            ? "block"
-                            : "none",
+                       "block"
                       }}
                     >
                       <p className="text-2xl font-bold">
-                        £{pkg.price.toFixed(2)}
+                        £{selectedPackage.price.toFixed(2)}
                       </p>
-                      <p className="mt-2 text-gray-300">{pkg.services}</p>
-                    </div>
-                  ))}
+                      <p className="mt-2 text-gray-300">{selectedPackage.services}</p>
+                    </div>)}
+                 
+                  
                 </div>
               </div>
             )}
