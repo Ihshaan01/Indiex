@@ -169,7 +169,7 @@ const Header = () => {
                   />
                 </form>
               </div>
-              <Link
+              {user && <Link
                 to="/Cart"
                 className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
                 data-tooltip-id="Cart"
@@ -177,7 +177,7 @@ const Header = () => {
                 aria-label="Cart"
               >
                 <CiShoppingCart />
-              </Link>
+              </Link>}
               {user?.role === "seller" && (
                 <Link
                   to="/Dashboard"
@@ -189,14 +189,14 @@ const Header = () => {
                   <MdOutlineDataThresholding />
                 </Link>
               )}
-              <div className="p-2">
+              {user && <div className="p-2">
                 <button
                   onClick={() => navigate("/chats")}
                   className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
                 >
                   <IoChatbubblesOutline />
                 </button>
-              </div>
+              </div>}
               <button
                 className="p-2 rounded-full hover:bg-gray-700 transition-all duration-200"
                 onClick={() => {
