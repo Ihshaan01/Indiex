@@ -458,10 +458,12 @@ function DetailPage() {
       </div>
 
       <div className="my-10">
-        <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
-          You Might Also Like
-        </h3>
+       
         {loadingNonCritical ? (
+          <>
+           <h3 className="text-2xl font-bold mb-4 mx-10 text-white">
+           You Might Also Like
+         </h3>
           <div className="grid md:grid-cols-4 gap-4 mx-10">
             {Array(4)
               .fill()
@@ -478,6 +480,7 @@ function DetailPage() {
                 </div>
               ))}
           </div>
+          </>
         ) : (
           <div className="grid md:grid-cols-4 gap-4 mx-10">
             {relatedItems.map((card, index) => (
